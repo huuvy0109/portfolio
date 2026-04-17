@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useSession } from 'next-auth/react'
 
 interface RunEntry {
   id: string
@@ -19,6 +20,8 @@ interface TestResult {
 }
 
 export default function TestHistorySection() {
+  const { data: session } = useSession()
+  const isLoggedIn = !!session
   const [history, setHistory] = useState<RunEntry[]>([])
   const [selectedRun, setSelectedRun] = useState<RunEntry | null>(null)
   const [testResults, setTestResults] = useState<TestResult[]>([])
@@ -174,14 +177,16 @@ export default function TestHistorySection() {
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
-                  <a
-                    href={selectedRun.reportPath}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="font-mono text-[10px] text-[var(--accent-green)] hover:underline"
-                  >
-                    Open Full HTML Report ↗
-                  </a>
+                  {isLoggedIn && (
+                    <a
+                      href={selectedRun.reportPath}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-mono text-[10px] text-[var(--accent-green)] hover:underline"
+                    >
+                      Open Full HTML Report ↗
+                    </a>
+                  )}
                   <button
                     onClick={() => setSelectedRun(null)}
                     className="p-2 hover:bg-[var(--bg-card-hover)] rounded-full transition-colors text-[var(--text-muted)] hover:text-[var(--text-primary)]"

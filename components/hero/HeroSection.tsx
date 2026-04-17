@@ -215,6 +215,51 @@ export default function HeroSection() {
           >
             View Journey →
           </button>
+
+          <div className="flex items-center gap-2">
+            <a
+              href="/CV/CV_VyQuangHuu_QCEngineer_ENG.pdf"
+              download
+              className="flex items-center gap-1.5 px-4 py-3 rounded font-mono text-sm transition-all duration-200"
+              style={{
+                border: '1px solid rgba(0,229,160,0.25)',
+                color: 'var(--accent-green)',
+                background: 'rgba(0,229,160,0.04)',
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.background = 'rgba(0,229,160,0.09)'
+                e.currentTarget.style.borderColor = 'rgba(0,229,160,0.5)'
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.background = 'rgba(0,229,160,0.04)'
+                e.currentTarget.style.borderColor = 'rgba(0,229,160,0.25)'
+              }}
+            >
+              ↓ CV (EN)
+            </a>
+            <a
+              href="/CV/CV_VyQuangHuu_QCEngineer_VIE.pdf"
+              download
+              className="flex items-center gap-1.5 px-4 py-3 rounded font-mono text-sm transition-all duration-200"
+              style={{
+                border: '1px solid rgba(0,229,160,0.15)',
+                color: 'var(--text-secondary)',
+                background: 'rgba(0,229,160,0.02)',
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.background = 'rgba(0,229,160,0.06)'
+                e.currentTarget.style.borderColor = 'rgba(0,229,160,0.35)'
+                e.currentTarget.style.color = 'var(--accent-green)'
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.background = 'rgba(0,229,160,0.02)'
+                e.currentTarget.style.borderColor = 'rgba(0,229,160,0.15)'
+                e.currentTarget.style.color = 'var(--text-secondary)'
+              }}
+            >
+              ↓ CV (VI)
+            </a>
+          </div>
         </motion.div>
 
         {/* Tech tags */}

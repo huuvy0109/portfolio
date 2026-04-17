@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Space_Grotesk, JetBrains_Mono } from 'next/font/google'
 import './globals.css'
+import SessionProvider from '@/components/providers/SessionProvider'
 
 const spaceGrotesk = Space_Grotesk({
   variable: '--font-display',
@@ -36,7 +37,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${spaceGrotesk.variable} ${jetbrainsMono.variable}`}>
-      <body className="min-h-screen">{children}</body>
+      <body className="min-h-screen"><SessionProvider>{children}</SessionProvider></body>
     </html>
   )
 }

@@ -347,7 +347,7 @@ function NodeCard({ node }: { node: typeof nodes[0] }) {
         {/* Tags */}
         <div className="flex flex-wrap gap-1 mt-3">
           {node.tags.map(t => (
-            <span key={t} className="font-mono text-[8px] px-1.5 py-0.5 rounded" style={{ background: 'var(--surface-high)', color: 'var(--text-muted)' }}>
+            <span key={t} className="font-mono text-[8px] px-1.5 py-0.5 rounded" style={{ background: 'var(--surface-high)', color: 'var(--text-secondary)' }}>
               {t}
             </span>
           ))}

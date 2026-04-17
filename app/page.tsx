@@ -111,12 +111,12 @@ function JourneySection() {
   ]
 
   return (
-    <section id="journey" className="py-20 px-4 max-w-7xl mx-auto w-full">
+    <section id="journey" data-testid="journey-section" className="py-20 px-4 max-w-7xl mx-auto w-full">
       <div className="mb-10">
         <div className="font-mono text-[10px] text-[var(--accent-green)] uppercase tracking-widest mb-2">
           // PROFESSIONAL JOURNEY
         </div>
-        <h2 className="text-2xl font-bold text-[var(--text-primary)]">7 Years in the Trenches</h2>
+        <h2 data-testid="journey-heading" className="text-2xl font-bold text-[var(--text-primary)]">7 Years in the Trenches</h2>
       </div>
 
       <div className="space-y-4">
@@ -182,6 +182,7 @@ function JourneySection() {
 function Footer() {
   return (
     <footer
+      data-testid="footer"
       className="py-8 px-4 text-center border-t"
       style={{ borderColor: 'var(--border-subtle)' }}
     >

@@ -49,6 +49,7 @@ export default function HistoryLog() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
       id="history"
+      data-testid="history-section"
       className="py-12 px-4 max-w-7xl mx-auto w-full"
     >
       <div className="mb-6">
@@ -56,7 +57,7 @@ export default function HistoryLog() {
           // HISTORY LOG
         </div>
         <div className="flex items-center gap-3 flex-wrap">
-          <h2 className="text-xl font-bold text-[var(--text-primary)]">AI Agent Learning Cycle</h2>
+          <h2 data-testid="history-heading" className="text-xl font-bold text-[var(--text-primary)]">AI Agent Learning Cycle</h2>
           <span className="font-mono text-[10px] px-2.5 py-1 rounded"
             style={{ background: 'rgba(0,255,157,0.07)', border: '1px solid rgba(0,255,157,0.2)', color: 'var(--accent-green)' }}>
             v1 → v2 Fixed
@@ -139,6 +140,7 @@ export default function HistoryLog() {
 
         {/* Summary footer */}
         <div
+          data-testid="history-summary"
           className="grid grid-cols-4 px-4 py-2.5 text-[10px] font-mono"
           style={{ background: 'var(--bg-secondary)', borderTop: '1px solid var(--border-subtle)' }}
         >

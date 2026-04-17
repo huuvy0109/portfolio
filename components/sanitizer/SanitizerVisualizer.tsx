@@ -48,7 +48,7 @@ export default function SanitizerVisualizer() {
   useEffect(() => { runScan() }, [])
 
   return (
-    <section id="sanitizer" className="py-20 px-4 max-w-7xl mx-auto w-full">
+    <section id="sanitizer" data-testid="sanitizer-section" className="py-20 px-4 max-w-7xl mx-auto w-full">
       {/* Header */}
       <div className="mb-8">
         <div className="font-mono text-[10px] text-[var(--accent-green)] uppercase tracking-widest mb-2">
@@ -56,7 +56,7 @@ export default function SanitizerVisualizer() {
         </div>
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
-            <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-1">
+            <h2 data-testid="sanitizer-heading" className="text-2xl font-bold text-[var(--text-primary)] mb-1">
               Data Sanitization Pipeline
             </h2>
             <p className="text-sm text-[var(--text-secondary)] max-w-lg">
@@ -175,6 +175,7 @@ export default function SanitizerVisualizer() {
         <div className="flex items-center justify-between mb-2">
           <span className="text-[var(--text-muted)] uppercase tracking-widest text-[10px]">Agent Sanitizer Log</span>
           <button
+            data-testid="btn-rescan"
             onClick={runScan}
             className="text-[10px] px-2.5 py-1 rounded transition-all duration-200"
             style={{ border: '1px solid var(--border-dim)', color: 'var(--text-muted)' }}

@@ -39,7 +39,7 @@ Concept: trang web IS the Subject Under Test. Triết lý "Imperfect Reality".
 | **Researcher** | Phân tích yêu cầu, lập plan, đọc codebase | Cached codebase map |
 | **Reviewer** | Validate plan theo DoD trước khi implement | Scale theo độ dài plan |
 | **Agent Dev** | Viết code, fix bug | Diff-only output |
-| **Agent Tester** | Viết + chạy Playwright test, báo lỗi | Artifacts + log truncation |
+| **Agent Tester** | Viết + chạy Playwright test, báo lỗi · **Generate test case Playwright cho mọi thay đổi UI/logic** | Artifacts + log truncation |
 | **Tracking Agent** | Theo dõi tiến trình, retry, ghi log | Structured logging |
 
 ### Reviewer Mode Selection
@@ -59,7 +59,7 @@ ELSE:
 
 ```
 [1] Agent Dev → implement
-[2] Agent Tester → run 1 critical test case
+[2] Agent Tester → generate + run Playwright test case cho thay đổi (tối thiểu 1 critical case)
 [3] npm run build → TypeScript check
 ─────────────────────────────────────────
 ⚠️ CONFIRM DUY NHẤT: Trình bày diff + test result → CHỜ USER
@@ -82,8 +82,9 @@ Max retry: 1. Nếu fail → escalate lên FULL MODE.
     → Nếu duyệt: MỚI được tiếp tục bước [3]
 ──────────────────────────────────────────────────────
 [3] Agent Dev → implement theo đúng plan đã duyệt
-[4] Agent Tester → viết + chạy Playwright test
-        → Xuất run_report + screenshot nếu fail
+[4] Agent Tester → generate Playwright test case tương ứng với thay đổi ở bước [3]
+        → Viết test cover: happy path + edge case + negative case
+        → Chạy test → Xuất run_report + screenshot nếu fail
 [5] Failure Classification:
         - Code Bug   → Agent Dev fix → retry (max 3)
         - Test Issue → fix test → rerun (không sửa code)
@@ -107,6 +108,23 @@ Max retry: 1. Nếu fail → escalate lên FULL MODE.
 - **Rules:** Screenshot bắt buộc khi fail. Log lỗi trích xuất tối đa 50 dòng.
 - **Env Check:** `IF localhost:3000 not available → return [BLOCKED] Env Issue`
 - **Flaky test:** KHÔNG fix để pass — đây là "Imperfect Reality" có chủ đích. Label rõ `(AI Agent Error — Simulated)` trong UI.
+
+### Quy tắc Generate Test Case (Agent Tester — BẮT BUỘC)
+
+Mỗi khi Agent Dev hoàn thành bước implement, Agent Tester **phải** generate Playwright test case tương ứng trước khi chạy:
+
+| Loại thay đổi | Test case bắt buộc |
+|--------------|-------------------|
+| Component UI mới | Render test + interaction test + responsive check |
+| Logic / state thay đổi | Happy path + edge case + negative case |
+| Form / input | Validation test + error state + submit flow |
+| Animation / scroll | Visibility test (whileInView, AnimatePresence) |
+| Navigation / routing | Link đúng target + scroll-to behavior |
+
+- **Selector:** Ưu tiên `data-testid`. Nếu chưa có → Agent Dev thêm `data-testid` vào component trước khi test.
+- **Naming:** `describe('[ComponentName]') → it('should [behavior] when [condition]')`
+- **Không hardcode** delay — dùng `waitFor` / `expect().toBeVisible()`
+- File test đặt tại `tests/e2e/`, đặt tên theo component: `journey.spec.ts`, `hero.spec.ts`…
 
 ---
 

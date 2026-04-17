@@ -8,6 +8,7 @@ import SanitizerVisualizer from '@/components/sanitizer/SanitizerVisualizer'
 import HistoryLog from '@/components/history/HistoryLog'
 import TestHistorySection from '@/components/history/TestHistorySection'
 import PipelineErrorBoundary from '@/components/pipeline-board/PipelineErrorBoundary'
+import JourneySection from '@/components/journey/JourneySection'
 import { usePipelineStore } from '@/lib/store/pipelineStore'
 
 function PipelineSection() {
@@ -80,99 +81,6 @@ function PipelineSection() {
   )
 }
 
-function JourneySection() {
-  const roles = [
-    {
-      company: 'Seedcom Food',
-      subtitle: 'Seedcom Group',
-      role: 'Senior QC Engineer → QC Lead',
-      period: 'Jan 2024 — Oct 2025',
-      highlight: 'Zero Critical Bugs',
-      desc: 'Led QC cho Sieuthisi.vn — nền tảng siêu thị dựa trên Odoo, đạt zero critical bug khi launch. Deploy Playwright automation giảm 40% regression effort. Owned end-to-end quality cho 4 module: HRM, E-Sign, Recruitment, Compensation. Tích hợp Odoo → Haraworks → Acumatica → WMS.',
-      tags: ['Playwright', 'Odoo', 'Haraworks', 'GitHub Actions', 'Jira'],
-      accent: 'var(--accent-green)',
-    },
-    {
-      company: 'HARAVAN',
-      subtitle: 'Seedcom Group',
-      role: 'QC Engineer → QC Specialist → QC Lead',
-      period: 'Jan 2019 — Dec 2023',
-      highlight: 'Day One',
-      desc: 'Tham gia từ ngày đầu xây dựng Haraworks.vn — SaaS phục vụ GHN (11,000+ nhân viên), The Coffee House (200+ cửa hàng), CellphoneS, JUNO. Thiết kế toàn bộ QA process từ đầu cho team 30–40 người, 6 module trên Web và Mobile.',
-      tags: ['Manual Testing', 'API Testing', 'Postman', 'Playwright', 'Jira'],
-      accent: 'var(--accent-blue)',
-    },
-  ]
-
-  return (
-    <section id="journey" data-testid="journey-section" className="py-20 px-4 max-w-7xl mx-auto w-full">
-      <div className="mb-10">
-        <div className="font-mono text-[10px] text-[var(--accent-green)] uppercase tracking-widest mb-2">
-          // PROFESSIONAL JOURNEY
-        </div>
-        <h2 data-testid="journey-heading" className="text-2xl font-bold text-[var(--text-primary)]">6+ Years in the Trenches</h2>
-      </div>
-
-      <div className="space-y-4">
-        {roles.map((r, i) => (
-          <div
-            key={i}
-            className="group rounded-xl p-5 transition-all duration-300 cursor-default"
-            style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)' }}
-            onMouseEnter={e => {
-              const el = e.currentTarget
-              el.style.borderColor = 'var(--border-active)'
-              el.style.background = 'var(--bg-card-hover)'
-            }}
-            onMouseLeave={e => {
-              const el = e.currentTarget
-              el.style.borderColor = 'var(--border-subtle)'
-              el.style.background = 'var(--bg-card)'
-            }}
-          >
-            <div className="flex items-start justify-between gap-4 flex-wrap mb-3">
-              <div className="flex items-center gap-3">
-                <div
-                  className="w-1.5 h-full min-h-[40px] rounded-full"
-                  style={{ background: r.accent, opacity: 0.7 }}
-                />
-                <div>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-bold text-[var(--text-primary)]">{r.company}</span>
-                    {'subtitle' in r && <span className="font-mono text-[10px] text-[var(--text-muted)]">{(r as any).subtitle}</span>}
-                    <span className="text-[var(--text-muted)]">·</span>
-                    <span className="text-[var(--text-secondary)] text-sm">{r.role}</span>
-                    <span
-                      className="font-mono text-[10px] px-2 py-0.5 rounded"
-                      style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-subtle)', color: r.accent }}
-                    >
-                      {r.highlight}
-                    </span>
-                  </div>
-                  <div className="font-mono text-[11px] text-[var(--text-muted)] mt-0.5">{r.period}</div>
-                </div>
-              </div>
-            </div>
-
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-3 ml-5">{r.desc}</p>
-
-            <div className="flex flex-wrap gap-1.5 ml-5">
-              {r.tags.map(tag => (
-                <span
-                  key={tag}
-                  className="font-mono text-[10px] px-2 py-0.5 rounded"
-                  style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-subtle)', color: 'var(--text-muted)' }}
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
-    </section>
-  )
-}
 
 function Footer() {
   return (

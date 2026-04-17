@@ -1,10 +1,12 @@
 'use client'
 
+import Image from 'next/image'
+import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { usePipelineStore } from '@/lib/store/pipelineStore'
 
 const stats = [
-  { value: '6+', label: 'YRS EXP' },
+  { value: '7+', label: 'YRS EXP' },
   { value: '+30%', label: 'TEST COVERAGE' },
   { value: '-40%', label: 'REGRESSION' },
   { value: '95%+', label: 'ON-TIME' },
@@ -14,15 +16,28 @@ const tags = ['Playwright', 'TypeScript', 'AI Multi-Agent', 'Cursor AI', 'GitHub
 
 export default function HeroSection() {
   const { trigger, phase } = usePipelineStore()
+  const [avatarError, setAvatarError] = useState(false)
 
   return (
-    <section data-testid="hero-section" className="relative min-h-screen flex flex-col items-center justify-center px-6 overflow-hidden">
-      {/* Background ambient gradient */}
+    <section
+      data-testid="hero-section"
+      className="relative min-h-screen flex flex-col items-center justify-center px-6 overflow-hidden"
+      style={{ background: 'var(--surface-lowest)' }}
+    >
+      {/* Ambient aura */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
           background:
-            'radial-gradient(ellipse 60% 50% at 50% 0%, rgba(0,255,157,0.04) 0%, transparent 70%), radial-gradient(ellipse 40% 30% at 80% 80%, rgba(96,165,250,0.03) 0%, transparent 60%)',
+            'radial-gradient(ellipse 70% 50% at 50% -5%, rgba(0,229,255,0.07) 0%, transparent 65%), radial-gradient(ellipse 40% 30% at 80% 85%, rgba(0,229,160,0.04) 0%, transparent 60%)',
+        }}
+      />
+
+      {/* Scanline subtle */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,229,255,0.008) 2px, rgba(0,229,255,0.008) 4px)',
         }}
       />
 
@@ -33,39 +48,78 @@ export default function HeroSection() {
         transition={{ duration: 0.6 }}
         className="absolute top-6 left-6 right-6 flex items-center justify-between"
       >
-        <span className="font-mono text-xs text-[var(--text-muted)] tracking-widest uppercase">
+        <span className="font-mono text-xs tracking-widest uppercase" style={{ color: 'var(--text-muted)' }}>
           portfolio_v2.1.0
         </span>
         <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-[var(--accent-green)]" style={{ animation: 'pulse-glow 2s ease-in-out infinite' }} />
-          <span className="font-mono text-xs text-[var(--accent-green)]">SYSTEM ONLINE</span>
+          <span
+            className="w-2 h-2 rounded-full"
+            style={{ background: 'var(--accent-cyan)', animation: 'pulse-glow 2s ease-in-out infinite', boxShadow: '0 0 8px var(--accent-cyan)' }}
+          />
+          <span className="font-mono text-xs" style={{ color: 'var(--accent-cyan)' }}>SYSTEM ONLINE</span>
         </div>
       </motion.div>
 
       {/* Main content */}
       <div className="relative z-10 text-center max-w-4xl mx-auto">
+
+        {/* Avatar */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.88 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.05, duration: 0.5 }}
+          className="flex justify-center mb-6"
+        >
+          <div
+            className="w-20 h-20 rounded-full overflow-hidden shrink-0 flex items-center justify-center"
+            style={{
+              border: '1.5px solid rgba(0,229,255,0.35)',
+              boxShadow: '0 0 24px rgba(0,229,255,0.15), 0 0 48px rgba(0,229,255,0.06)',
+              background: 'var(--surface-mid)',
+            }}
+          >
+            {!avatarError ? (
+              <Image
+                src="/avatar.jpg"
+                alt="Vy Quang Huu"
+                width={80}
+                height={80}
+                className="w-full h-full object-cover"
+                priority
+                onError={() => setAvatarError(true)}
+              />
+            ) : (
+              <span className="font-mono text-lg font-bold" style={{ color: 'var(--accent-cyan)' }}>VH</span>
+            )}
+          </div>
+        </motion.div>
+
         {/* Role badge */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1, duration: 0.6 }}
-          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-[var(--border-dim)] mb-8"
-          style={{ background: 'rgba(0,255,157,0.05)' }}
+          className="inline-flex items-center gap-2 px-3 py-1.5 rounded mb-8"
+          style={{
+            background: 'rgba(0,229,255,0.06)',
+            border: '1px solid rgba(0,229,255,0.15)',
+          }}
         >
-          <span className="text-[var(--accent-green)] text-xs">⬡</span>
-          <span className="font-mono text-xs text-[var(--text-secondary)] tracking-widest uppercase">
+          <span style={{ color: 'var(--accent-cyan)', fontSize: '10px' }}>⬡</span>
+          <span className="font-mono text-xs tracking-widest uppercase" style={{ color: 'var(--text-secondary)' }}>
             QC Engineer · AI Automation
           </span>
         </motion.div>
 
-        {/* Name */}
+        {/* Name — Space Grotesk display */}
         <motion.h1
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.7 }}
           className="text-6xl sm:text-7xl md:text-8xl font-bold tracking-tight mb-4 leading-none"
           style={{
-            background: 'linear-gradient(135deg, #f0f0f0 0%, #888 60%, #f0f0f0 100%)',
+            fontFamily: 'var(--font-display), Space Grotesk, system-ui',
+            background: 'linear-gradient(135deg, #e8f4f5 0%, var(--accent-cyan-dim) 40%, #7a9ca0 80%, #e8f4f5 100%)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             backgroundClip: 'text',
@@ -79,11 +133,12 @@ export default function HeroSection() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.35, duration: 0.6 }}
-          className="font-mono text-sm sm:text-base text-[var(--text-secondary)] mb-3 tracking-wide"
+          className="font-mono text-sm sm:text-base mb-3 tracking-wide"
+          style={{ color: 'var(--text-secondary)' }}
         >
-          <span className="text-[var(--accent-green)]">&gt;</span>{' '}
+          <span style={{ color: 'var(--accent-cyan)' }}>&gt;</span>{' '}
           This page is not just a portfolio —{' '}
-          <span className="text-[var(--text-primary)]">it is a Subject Under Test</span>
+          <span style={{ color: 'var(--text-primary)' }}>it is a Subject Under Test</span>
           <span className="cursor-blink" />
         </motion.p>
 
@@ -91,7 +146,8 @@ export default function HeroSection() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5, duration: 0.6 }}
-          className="text-[var(--text-secondary)] text-sm max-w-xl mx-auto mb-12 leading-relaxed"
+          className="text-sm max-w-xl mx-auto mb-12 leading-relaxed"
+          style={{ color: 'var(--text-secondary)' }}
         >
           Building intelligent QA systems that model real-world failures, enforce quality gates,
           and leave an auditable trail of every human decision.
@@ -107,8 +163,18 @@ export default function HeroSection() {
         >
           {stats.map((s, i) => (
             <div key={i} className="text-center">
-              <div className="text-2xl font-bold text-[var(--text-primary)]">{s.value}</div>
-              <div className="font-mono text-[10px] text-[var(--text-muted)] tracking-widest uppercase mt-0.5">{s.label}</div>
+              <div
+                className="text-2xl font-bold font-mono"
+                style={{ color: 'var(--accent-cyan-dim)' }}
+              >
+                {s.value}
+              </div>
+              <div
+                className="font-mono text-[10px] tracking-widest uppercase mt-0.5"
+                style={{ color: 'var(--text-muted)' }}
+              >
+                {s.label}
+              </div>
             </div>
           ))}
         </motion.div>
@@ -126,29 +192,14 @@ export default function HeroSection() {
               if (phase === 'idle') trigger()
               document.getElementById('pipeline')?.scrollIntoView({ behavior: 'smooth' })
             }}
-            className="group flex items-center gap-2 px-6 py-3 rounded-lg font-mono text-sm font-medium transition-all duration-200"
-            style={{
-              background: 'rgba(0,255,157,0.08)',
-              border: '1px solid rgba(0,255,157,0.3)',
-              color: 'var(--accent-green)',
-            }}
-            onMouseEnter={e => {
-              const el = e.currentTarget
-              el.style.background = 'rgba(0,255,157,0.14)'
-              el.style.boxShadow = '0 0 16px rgba(0,255,157,0.15)'
-            }}
-            onMouseLeave={e => {
-              const el = e.currentTarget
-              el.style.background = 'rgba(0,255,157,0.08)'
-              el.style.boxShadow = 'none'
-            }}
+            className="btn-primary group flex items-center gap-2 px-6 py-3 rounded font-mono text-sm font-medium"
           >
             <span>▶ Run Pipeline</span>
           </button>
 
           <button
             onClick={() => document.getElementById('journey')?.scrollIntoView({ behavior: 'smooth' })}
-            className="flex items-center gap-2 px-6 py-3 rounded-lg font-mono text-sm transition-all duration-200"
+            className="flex items-center gap-2 px-6 py-3 rounded font-mono text-sm transition-all duration-200"
             style={{
               border: '1px solid var(--border-dim)',
               color: 'var(--text-secondary)',
@@ -177,7 +228,11 @@ export default function HeroSection() {
             <span
               key={tag}
               className="px-2.5 py-1 rounded font-mono text-[10px] tracking-widest uppercase"
-              style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', color: 'var(--text-muted)' }}
+              style={{
+                background: 'var(--surface-mid)',
+                border: '1px solid var(--border-ghost)',
+                color: 'var(--text-muted)',
+              }}
             >
               {tag}
             </span>
@@ -192,13 +247,13 @@ export default function HeroSection() {
         transition={{ delay: 1.2, duration: 0.6 }}
         className="absolute bottom-8 flex flex-col items-center gap-1.5"
       >
-        <span className="font-mono text-[10px] text-[var(--text-muted)] tracking-widest uppercase">scroll</span>
+        <span className="font-mono text-[10px] tracking-widest uppercase" style={{ color: 'var(--text-muted)' }}>scroll</span>
         <div className="flex flex-col gap-1">
           {[0, 1].map(i => (
             <div
               key={i}
-              className="w-px h-2 bg-[var(--text-muted)] mx-auto"
-              style={{ animation: `scroll-down 1.2s ease-in-out ${i * 0.2}s infinite` }}
+              className="w-px h-2 mx-auto"
+              style={{ background: 'var(--text-muted)', animation: `scroll-down 1.2s ease-in-out ${i * 0.2}s infinite` }}
             />
           ))}
         </div>

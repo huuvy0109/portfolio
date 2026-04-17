@@ -16,4 +16,4 @@ npm run dev     → localhost:3000
 npm run build   → TypeScript check + production build
 ```
 
-Sprint hiện tại: **Sprint 2** — Playwright scripts + GitHub Actions + Sanitizer Visualizer
+Sprint hiện tại: **Sprint 3** — Glow effects, History Log, Mobile responsive

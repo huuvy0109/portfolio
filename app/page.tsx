@@ -5,10 +5,12 @@ import PipelineBoard from '@/components/pipeline-board/PipelineBoard'
 import TerminalUI from '@/components/terminal/TerminalUI'
 import QualityGate from '@/components/quality-gate/QualityGate'
 import SanitizerVisualizer from '@/components/sanitizer/SanitizerVisualizer'
+import HistoryLog from '@/components/history/HistoryLog'
+import PipelineErrorBoundary from '@/components/pipeline-board/PipelineErrorBoundary'
 import { usePipelineStore } from '@/lib/store/pipelineStore'
 
 function PipelineSection() {
-  const { trigger, phase } = usePipelineStore()
+  const { trigger, phase, runMode } = usePipelineStore()
 
   return (
     <section id="pipeline" className="py-20 px-4 max-w-7xl mx-auto w-full">
@@ -48,11 +50,13 @@ function PipelineSection() {
         </div>
       </div>
 
-      {/* Board + Terminal */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
-        <PipelineBoard />
-        <TerminalUI />
-      </div>
+      {/* Board + Terminal — wrapped in error boundary */}
+      <PipelineErrorBoundary>
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
+          <PipelineBoard />
+          <TerminalUI />
+        </div>
+      </PipelineErrorBoundary>
 
       {/* Quality Gate */}
       <QualityGate />
@@ -67,7 +71,7 @@ function PipelineSection() {
             onMouseEnter={e => { e.currentTarget.style.color = 'var(--accent-green)'; e.currentTarget.style.borderColor = 'rgba(0,255,157,0.3)' }}
             onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.borderColor = 'var(--border-dim)' }}
           >
-            ↺ Simulate Again
+            ↺ Simulate Again {runMode === 'v2-fixed' ? '(v2 — AI Fixed)' : ''}
           </button>
         </div>
       )}
@@ -198,6 +202,7 @@ export default function Home() {
 
       <div className="flex flex-col items-center">
         <PipelineSection />
+        <HistoryLog />
         <SanitizerVisualizer />
         <JourneySection />
       </div>

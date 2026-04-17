@@ -159,7 +159,7 @@ Max retry: 1. Nếu fail → escalate lên FULL MODE.
 - [x] `lib/decision-engine.ts` rule-based gate
 - **DoD đạt:** `npm run build` pass, 0 lỗi TypeScript
 
-### 🔲 Sprint 2 — Evidence & Flaky Logic
+### ✅ Sprint 2 — Evidence & Flaky Logic (DONE)
 - [ ] `tests/e2e/hero.spec.ts` (expect PASS)
 - [ ] `tests/e2e/pipeline.spec.ts` — locator sai có chủ đích (expect FLAKY)
 - [ ] `.github/workflows/playwright.yml` — CI export HTML report

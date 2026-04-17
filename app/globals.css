@@ -88,6 +88,16 @@ body::after {
   50%       { opacity: 1; }
 }
 
+@keyframes pulse-glow-intense {
+  0%, 100% { opacity: 0.35; box-shadow: 0 0 8px currentColor; }
+  50%       { opacity: 1;    box-shadow: 0 0 24px currentColor, 0 0 48px currentColor; }
+}
+
+@keyframes glow-bar {
+  0%, 100% { opacity: 0.4; transform: scaleX(0.85); }
+  50%       { opacity: 1;   transform: scaleX(1); }
+}
+
 @keyframes scroll-down {
   0%   { transform: translateY(0); opacity: 1; }
   100% { transform: translateY(6px); opacity: 0; }

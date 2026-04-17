@@ -116,8 +116,8 @@ export default function PipelineBoard() {
         </div>
       </div>
 
-      {/* Columns */}
-      <div className="grid grid-cols-4 gap-0 flex-1 min-h-[280px]">
+      {/* Columns — horizontal scroll on mobile */}
+      <div className="flex overflow-x-auto lg:grid lg:grid-cols-4 gap-0 flex-1 min-h-[280px]">
         {COLUMNS.map((col, ci) => {
           const colCards = cards.filter(c => c.column === col.id)
           const isActive = phase === col.id || (col.id === 'ci-running' && phase === 'quality-gate')
@@ -126,10 +126,12 @@ export default function PipelineBoard() {
             <div
               key={col.id}
               data-testid={`column-${col.id}`}
-              className="flex flex-col border-r last:border-r-0 transition-all duration-500"
+              className="flex flex-col border-r last:border-r-0 transition-all duration-500 shrink-0 lg:shrink"
               style={{
                 borderColor: 'var(--border-subtle)',
-                background: isActive ? 'rgba(255,255,255,0.012)' : 'transparent',
+                background: isActive ? 'rgba(255,255,255,0.015)' : 'transparent',
+                minWidth: '140px',
+                boxShadow: isActive ? `inset 0 0 40px rgba(0,0,0,0.15)` : 'none',
               }}
             >
               {/* Column header */}
@@ -146,9 +148,14 @@ export default function PipelineBoard() {
                     {col.label}
                   </span>
                 </div>
+                {/* Active underline bar — glow-bar animation */}
                 <div
-                  className="h-0.5 w-full rounded-full transition-all duration-500"
-                  style={{ background: isActive ? `var(${col.accentVar})` : 'transparent', opacity: isActive ? 0.6 : 0 }}
+                  className="h-0.5 w-full rounded-full transition-all duration-500 origin-left"
+                  style={{
+                    background: `var(${col.accentVar})`,
+                    opacity: isActive ? 1 : 0,
+                    animation: isActive ? 'glow-bar 2s ease-in-out infinite' : 'none',
+                  }}
                 />
               </div>
 
@@ -164,10 +171,11 @@ export default function PipelineBoard() {
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.9 }}
                       transition={{ type: 'spring', stiffness: 300, damping: 28 }}
-                      className={`rounded-lg p-2.5 cursor-default transition-all duration-300 ${isActive && col.id === 'ci-running' && failCount > 0 && phase === 'quality-gate' ? col.glowClass : ''}`}
+                      className={`rounded-lg p-2.5 cursor-default transition-all duration-300 ${isActive ? col.glowClass : ''}`}
                       style={{
                         background: 'var(--bg-secondary)',
-                        border: `1px solid ${isActive ? `rgba(255,255,255,0.1)` : 'var(--border-subtle)'}`,
+                        border: `1px solid ${isActive ? `var(${col.accentVar})` : 'var(--border-subtle)'}`,
+                        transition: 'box-shadow 0.4s ease, border-color 0.3s ease',
                       }}
                     >
                       <div className="flex items-start justify-between gap-1 mb-1.5">
@@ -201,10 +209,15 @@ export default function PipelineBoard() {
                 {isActive && colCards.length === 0 && (
                   <div className="flex items-center gap-1.5 px-1 py-1">
                     <div
-                      className="w-1.5 h-1.5 rounded-full"
-                      style={{ background: `var(${col.accentVar})`, animation: 'pulse-glow 1.5s ease-in-out infinite' }}
+                      className="w-2 h-2 rounded-full"
+                      style={{
+                        background: `var(${col.accentVar})`,
+                        color: `var(${col.accentVar})`,
+                        animation: 'pulse-glow-intense 1.4s ease-in-out infinite',
+                        boxShadow: `0 0 8px var(${col.accentVar})`,
+                      }}
                     />
-                    <span className="font-mono text-[9px] text-[var(--text-muted)]">processing...</span>
+                    <span className="font-mono text-[9px]" style={{ color: `var(${col.accentVar})` }}>processing...</span>
                   </div>
                 )}
               </div>

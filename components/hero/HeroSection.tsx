@@ -4,13 +4,13 @@ import { motion } from 'framer-motion'
 import { usePipelineStore } from '@/lib/store/pipelineStore'
 
 const stats = [
-  { value: '7', label: 'YRS EXP' },
-  { value: '30–40', label: 'TEAM SIZE' },
-  { value: '5+', label: 'ENTERPRISES' },
-  { value: 'AI', label: 'PIPELINE' },
+  { value: '6+', label: 'YRS EXP' },
+  { value: '+30%', label: 'TEST COVERAGE' },
+  { value: '-40%', label: 'REGRESSION' },
+  { value: '95%+', label: 'ON-TIME' },
 ]
 
-const tags = ['Playwright', 'TypeScript', 'AI Multi-Agent', 'Jira', 'GitHub Actions', 'Postman', 'SQL']
+const tags = ['Playwright', 'TypeScript', 'AI Multi-Agent', 'Cursor AI', 'GitHub Actions', 'Postman', 'Jira']
 
 export default function HeroSection() {
   const { trigger, phase } = usePipelineStore()
@@ -54,7 +54,7 @@ export default function HeroSection() {
         >
           <span className="text-[var(--accent-green)] text-xs">⬡</span>
           <span className="font-mono text-xs text-[var(--text-secondary)] tracking-widest uppercase">
-            QA Lead · AI Automation Engineer
+            QC Engineer · AI Automation
           </span>
         </motion.div>
 

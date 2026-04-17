@@ -6,6 +6,7 @@ import TerminalUI from '@/components/terminal/TerminalUI'
 import QualityGate from '@/components/quality-gate/QualityGate'
 import SanitizerVisualizer from '@/components/sanitizer/SanitizerVisualizer'
 import HistoryLog from '@/components/history/HistoryLog'
+import TestHistorySection from '@/components/history/TestHistorySection'
 import PipelineErrorBoundary from '@/components/pipeline-board/PipelineErrorBoundary'
 import { usePipelineStore } from '@/lib/store/pipelineStore'
 
@@ -82,31 +83,24 @@ function PipelineSection() {
 function JourneySection() {
   const roles = [
     {
-      company: 'Haraworks',
-      role: 'QA Lead',
-      period: '2022 — Present',
-      highlight: 'Team 30–40',
-      desc: 'Led quality strategy across multi-team product releases. Established QA processes for 4 product lines, reduced critical bug leakage by 40%.',
-      tags: ['Jira', 'Playwright', 'API Testing', 'Risk Management'],
+      company: 'Seedcom Food',
+      subtitle: 'Seedcom Group',
+      role: 'Senior QC Engineer → QC Lead',
+      period: 'Jan 2024 — Oct 2025',
+      highlight: 'Zero Critical Bugs',
+      desc: 'Led QC cho Sieuthisi.vn — nền tảng siêu thị dựa trên Odoo, đạt zero critical bug khi launch. Deploy Playwright automation giảm 40% regression effort. Owned end-to-end quality cho 4 module: HRM, E-Sign, Recruitment, Compensation. Tích hợp Odoo → Haraworks → Acumatica → WMS.',
+      tags: ['Playwright', 'Odoo', 'Haraworks', 'GitHub Actions', 'Jira'],
       accent: 'var(--accent-green)',
     },
     {
-      company: 'Techland',
-      role: 'Senior QA Engineer',
-      period: '2020 — 2022',
-      highlight: 'AI Pipeline',
-      desc: 'Designed and operated multi-agent test automation pipeline. First to introduce AI-generated test scripts in production QA workflow.',
-      tags: ['GitHub Actions', 'Python', 'LLM Integration', 'CI/CD'],
+      company: 'HARAVAN',
+      subtitle: 'Seedcom Group',
+      role: 'QC Engineer → QC Specialist → QC Lead',
+      period: 'Jan 2019 — Dec 2023',
+      highlight: 'Day One',
+      desc: 'Tham gia từ ngày đầu xây dựng Haraworks.vn — SaaS phục vụ GHN (11,000+ nhân viên), The Coffee House (200+ cửa hàng), CellphoneS, JUNO. Thiết kế toàn bộ QA process từ đầu cho team 30–40 người, 6 module trên Web và Mobile.',
+      tags: ['Manual Testing', 'API Testing', 'Postman', 'Playwright', 'Jira'],
       accent: 'var(--accent-blue)',
-    },
-    {
-      company: 'Various',
-      role: 'QA Engineer',
-      period: '2017 — 2020',
-      highlight: '5+ Projects',
-      desc: 'Built foundational automation frameworks, API test suites, and performance testing pipelines across e-commerce and fintech domains.',
-      tags: ['Selenium', 'Postman', 'JMeter', 'MySQL'],
-      accent: 'var(--accent-purple)',
     },
   ]
 
@@ -116,7 +110,7 @@ function JourneySection() {
         <div className="font-mono text-[10px] text-[var(--accent-green)] uppercase tracking-widest mb-2">
           // PROFESSIONAL JOURNEY
         </div>
-        <h2 data-testid="journey-heading" className="text-2xl font-bold text-[var(--text-primary)]">7 Years in the Trenches</h2>
+        <h2 data-testid="journey-heading" className="text-2xl font-bold text-[var(--text-primary)]">6+ Years in the Trenches</h2>
       </div>
 
       <div className="space-y-4">
@@ -145,6 +139,7 @@ function JourneySection() {
                 <div>
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="font-bold text-[var(--text-primary)]">{r.company}</span>
+                    {'subtitle' in r && <span className="font-mono text-[10px] text-[var(--text-muted)]">{(r as any).subtitle}</span>}
                     <span className="text-[var(--text-muted)]">·</span>
                     <span className="text-[var(--text-secondary)] text-sm">{r.role}</span>
                     <span
@@ -187,7 +182,17 @@ function Footer() {
       style={{ borderColor: 'var(--border-subtle)' }}
     >
       <p className="font-mono text-xs text-[var(--text-muted)]">
-        Huu Vy · QA Lead · huuvy0109@gmail.com
+        Vy Quang Huu · QC Engineer · huuvy0109@gmail.com ·{' '}
+        <a
+          href="https://linkedin.com/in/huuvy0109"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ color: 'var(--accent-blue)', textDecoration: 'none' }}
+          onMouseEnter={e => { e.currentTarget.style.textDecoration = 'underline' }}
+          onMouseLeave={e => { e.currentTarget.style.textDecoration = 'none' }}
+        >
+          LinkedIn ↗
+        </a>
       </p>
       <p className="font-mono text-[10px] text-[var(--text-muted)] mt-1 opacity-50">
         Built with Next.js · TypeScript · Tailwind · Playwright · <span style={{ color: 'var(--accent-green)' }}>this page is the SUT</span>
@@ -204,6 +209,7 @@ export default function Home() {
       <div className="flex flex-col items-center">
         <PipelineSection />
         <HistoryLog />
+        <TestHistorySection />
         <SanitizerVisualizer />
         <JourneySection />
       </div>

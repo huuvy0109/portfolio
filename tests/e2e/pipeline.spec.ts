@@ -29,8 +29,8 @@ test.describe('Pipeline Board', () => {
    * Đây là hành vi có chủ đích để demo Quality Gate workflow.
    */
   test('card moves to BA Analyzing column on trigger [AI Agent Error — Simulated]', async ({ page }) => {
-    // Skip this test by default to keep CI green. Run with RUN_SIMULATED=true for demo.
-    test.skip(!process.env.RUN_SIMULATED, 'Skipping simulated error test (demo only)');
+    // Skip unless explicitly set to 'true' string
+    test.skip(process.env.RUN_SIMULATED !== 'true', 'Skipping simulated error test (demo only)');
 
     await page.getByTestId('btn-run-pipeline').click()
 

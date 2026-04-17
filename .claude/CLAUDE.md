@@ -1,7 +1,9 @@
 # Portfolio — QA Living Portfolio
 
+> **Ngôn ngữ phản hồi: Luôn trả lời bằng Tiếng Việt.**
+
 Trang web IS the Subject Under Test. Mô phỏng Enterprise QA Pipeline + AI Multi-Agent.  
-Owner: Huu Vy — QA Lead 7 năm | huuvy0109@gmail.com
+Owner: Vy Quang Huu — QC Engineer 6+ năm | huuvy0109@gmail.com
 
 ## Rules
 
@@ -16,4 +18,4 @@ npm run dev     → localhost:3000
 npm run build   → TypeScript check + production build
 ```
 
-Sprint hiện tại: **Sprint 3** — Glow effects, History Log, Mobile responsive
+Sprint hiện tại: **Sprint 4** — Personal info update, SEO, TestHistorySection, Go-Live

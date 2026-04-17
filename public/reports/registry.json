@@ -1,0 +1,50 @@
+[
+  {
+    "id": "run-2026-04-17T06-02-30-845Z",
+    "timestamp": "2026-04-17T06:02:30.849Z",
+    "status": "passed",
+    "reportPath": "/reports/run-2026-04-17T06-02-30-845Z/index.html",
+    "jsonPath": "/reports/run-2026-04-17T06-02-30-845Z/results.json"
+  },
+  {
+    "id": "run-2026-04-17T06-00-49-890Z",
+    "timestamp": "2026-04-17T06:00:49.925Z",
+    "status": "failed",
+    "reportPath": "/reports/run-2026-04-17T06-00-49-890Z/index.html",
+    "jsonPath": "/reports/run-2026-04-17T06-00-49-890Z/results.json"
+  },
+  {
+    "id": "run-2026-04-17T05-59-50-060Z",
+    "timestamp": "2026-04-17T05:59:50.086Z",
+    "status": "failed",
+    "reportPath": "/reports/run-2026-04-17T05-59-50-060Z/index.html",
+    "jsonPath": "/reports/run-2026-04-17T05-59-50-060Z/results.json"
+  },
+  {
+    "id": "run-2026-04-17T05-57-58-896Z",
+    "timestamp": "2026-04-17T05:57:58.921Z",
+    "status": "failed",
+    "reportPath": "/reports/run-2026-04-17T05-57-58-896Z/index.html",
+    "jsonPath": "/reports/run-2026-04-17T05-57-58-896Z/results.json"
+  },
+  {
+    "id": "run-2026-04-17T05-54-56-975Z",
+    "timestamp": "2026-04-17T05:54:56.980Z",
+    "status": "passed",
+    "reportPath": "/reports/run-2026-04-17T05-54-56-975Z/index.html",
+    "jsonPath": "/reports/run-2026-04-17T05-54-56-975Z/results.json"
+  },
+  {
+    "id": "run-2026-04-17T05-53-22-332Z",
+    "timestamp": "2026-04-17T05:53:22.336Z",
+    "status": "passed",
+    "reportPath": "/reports/run-2026-04-17T05-53-22-332Z/index.html",
+    "jsonPath": "/reports/run-2026-04-17T05-53-22-332Z/results.json"
+  },
+  {
+    "id": "run-2026-04-17T05-48-56-526Z",
+    "timestamp": "2026-04-17T05:48:56.531Z",
+    "status": "passed",
+    "reportPath": "/reports/run-2026-04-17T05-48-56-526Z/index.html"
+  }
+]

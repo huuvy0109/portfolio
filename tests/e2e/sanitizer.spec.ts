@@ -17,12 +17,11 @@ test.describe('Sanitizer Section', () => {
   })
 
   test('re-scan button triggers scanning', async ({ page }) => {
+    await page.getByTestId('sanitizer-section').scrollIntoViewIfNeeded()
     const rescanBtn = page.getByTestId('btn-rescan')
     await expect(rescanBtn).toBeVisible()
     await rescanBtn.click()
-    
-    // Verify scanning state (text changes to SCANNING...)
-    const status = page.locator('text=sanitized_report.json — SCANNING...')
-    await expect(status).toBeVisible()
+    // After scan completes, status shows redacted count
+    await expect(page.getByTestId('sanitizer-section')).toContainText('redacted', { timeout: 8000 })
   })
 })

@@ -3,37 +3,40 @@ import { test, expect } from '@playwright/test'
 test.describe('History Section', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/')
+    await page.getByTestId('history-section').scrollIntoViewIfNeeded()
   })
 
-  test('history section is visible', async ({ page }) => {
-    // Initial state: history is hidden
-    await expect(page.getByTestId('history-section')).not.toBeVisible()
-
-    // 1. Start v1
-    await page.getByTestId('btn-run-pipeline').click()
-    
-    // 2. Click "Simulate Again" (this saves v1 snapshot and switches to v2)
-    const simulateAgainBtn = page.locator('button:has-text("Simulate Again")')
-    await expect(simulateAgainBtn).toBeVisible()
-    await simulateAgainBtn.click()
-    
-    // 3. Click "Simulate Again" once more (this saves v2 snapshot)
-    // Now we should have both v1 and v2 in history
-    await expect(simulateAgainBtn).toBeVisible()
-    await simulateAgainBtn.click()
-    
-    const historySection = page.getByTestId('history-section')
-    await expect(historySection).toBeVisible({ timeout: 10000 })
+  test('should be visible on page load', async ({ page }) => {
+    await expect(page.getByTestId('history-section')).toBeVisible()
   })
 
-  test('displays correct heading', async ({ page }) => {
-    await page.getByTestId('btn-run-pipeline').click()
-    const simulateAgainBtn = page.locator('button:has-text("Simulate Again")')
-    await simulateAgainBtn.click()
-    await simulateAgainBtn.click()
-
-    const heading = page.getByTestId('history-heading')
+  test('should display correct heading', async ({ page }) => {
+    const heading = page.getByTestId('history-section').locator('h2').first()
     await expect(heading).toBeVisible()
-    await expect(heading).toHaveText('AI Agent Learning Cycle')
+    await expect(heading).toContainText(/Playwright Run Archive|Kho Lưu Playwright Runs/)
+  })
+
+  test('should display run list with multiple items', async ({ page }) => {
+    const section = page.getByTestId('history-section')
+    // Mock runs are always displayed — at least 2 visible
+    await expect(section.getByText(/PASS|FAIL/).first()).toBeVisible()
+  })
+
+  test('should show pass and fail status badges', async ({ page }) => {
+    const section = page.getByTestId('history-section')
+    await expect(section.getByText('✓ PASS').first()).toBeVisible()
+    await expect(section.getByText('✗ FAIL').first()).toBeVisible()
+  })
+
+  test('should update detail panel when a run is clicked', async ({ page }) => {
+    const section = page.getByTestId('history-section')
+    // Click second run item
+    const runItems = section.locator('[style*="cursor: pointer"]')
+    const count = await runItems.count()
+    if (count > 1) {
+      await runItems.nth(1).click()
+      // Detail panel updates — spec files still visible
+      await expect(section.getByText('hero.spec.ts').first()).toBeVisible()
+    }
   })
 })

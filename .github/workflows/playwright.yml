@@ -5,6 +5,12 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  workflow_dispatch:
+    inputs:
+      env:
+        description: 'Environment label for this run'
+        required: false
+        default: 'ci'
 
 jobs:
   test:
@@ -30,13 +36,30 @@ jobs:
 
       - name: Build
         run: npm run build
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+          NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL }}
+          BLOB_READ_WRITE_TOKEN: ${{ secrets.BLOB_READ_WRITE_TOKEN }}
 
       - name: Run Playwright tests
         run: npm run test
         env:
           CI: true
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+          NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL }}
+          BLOB_READ_WRITE_TOKEN: ${{ secrets.BLOB_READ_WRITE_TOKEN }}
 
-      - name: Upload Playwright report
+      - name: Upload Playwright report to portfolio
+        if: always()
+        run: node scripts/upload-report.mjs
+        env:
+          PORTFOLIO_API_KEY: ${{ secrets.PORTFOLIO_API_KEY }}
+          PORTFOLIO_URL: ${{ secrets.PORTFOLIO_URL }}
+          RUN_ENV: ${{ github.event.inputs.env || (github.event_name == 'workflow_dispatch' && 'ci') || 'ci' }}
+
+      - name: Upload Playwright report artifact
         uses: actions/upload-artifact@v4
         if: always()
         with:

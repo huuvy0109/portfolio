@@ -80,11 +80,12 @@ export default function ProjectRunsClient({ project, initialRuns }: { project: P
         {project.ciConfig && (
           <div className="flex items-center gap-3">
             {triggerMsg && (
-              <span className="font-mono text-[11px]" style={{ color: triggerMsg.ok ? 'var(--accent-green)' : 'var(--accent-red)' }}>
+              <span data-testid="trigger-msg" className="font-mono text-[11px]" style={{ color: triggerMsg.ok ? 'var(--accent-green)' : 'var(--accent-red)' }}>
                 {triggerMsg.text}
               </span>
             )}
             <button
+              data-testid="btn-trigger-ci"
               onClick={handleTrigger}
               disabled={triggering}
               className="font-mono text-xs px-5 py-2 rounded transition-all duration-200 disabled:opacity-50"
@@ -101,14 +102,14 @@ export default function ProjectRunsClient({ project, initialRuns }: { project: P
       </div>
 
       {runs.length === 0 ? (
-        <div className="text-center py-16">
+        <div data-testid="runs-empty" className="text-center py-16">
           <div className="font-mono text-sm mb-2" style={{ color: 'var(--text-muted)' }}>No runs yet</div>
           <div className="font-mono text-[11px]" style={{ color: 'var(--text-muted)' }}>
             Upload a report via <code style={{ color: 'var(--accent-cyan)' }}>POST /api/reports/upload</code>
           </div>
         </div>
       ) : (
-        <div className="rounded-xl overflow-hidden" style={{ background: 'var(--surface-low)', border: '1px solid var(--border-subtle)' }}>
+        <div data-testid="runs-table" className="rounded-xl overflow-hidden" style={{ background: 'var(--surface-low)', border: '1px solid var(--border-subtle)' }}>
           <div className="grid grid-cols-12 text-[10px] font-mono uppercase tracking-widest px-5 py-3 border-b"
             style={{ borderColor: 'var(--border-subtle)', background: 'var(--surface-lowest)' }}>
             <span className="col-span-2" style={{ color: 'var(--text-muted)' }}>Status</span>
@@ -118,7 +119,7 @@ export default function ProjectRunsClient({ project, initialRuns }: { project: P
             <span className="col-span-1 text-right" style={{ color: 'var(--text-muted)' }}>Action</span>
           </div>
           {runs.map(run => (
-            <div key={run.id} className="grid grid-cols-12 px-5 py-4 items-center border-b last:border-0"
+            <div key={run.id} data-testid={`run-row-${run.id}`} className="grid grid-cols-12 px-5 py-4 items-center border-b last:border-0"
               style={{ borderColor: 'var(--border-subtle)' }}>
               <div className="col-span-2">
                 <span className="font-mono text-[10px] px-2 py-0.5 rounded"
@@ -140,7 +141,7 @@ export default function ProjectRunsClient({ project, initialRuns }: { project: P
                 {' '}<span style={{ color: 'var(--accent-yellow)' }}>⊘{run.skipped || 0}</span>
               </div>
               <div className="col-span-1 text-right">
-                <button onClick={() => openRun(run)}
+                <button data-testid={`btn-detail-${run.id}`} onClick={() => openRun(run)}
                   className="font-mono text-[10px] hover:underline" style={{ color: 'var(--accent-blue)' }}>
                   Detail ↗
                 </button>
@@ -158,6 +159,7 @@ export default function ProjectRunsClient({ project, initialRuns }: { project: P
               onClick={() => setSelectedRun(null)}
               className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
             <motion.div
+              data-testid="run-detail-modal"
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -185,7 +187,7 @@ export default function ProjectRunsClient({ project, initialRuns }: { project: P
                       Open HTML Report ↗
                     </a>
                   )}
-                  <button onClick={() => setSelectedRun(null)}
+                  <button data-testid="btn-close-modal" onClick={() => setSelectedRun(null)}
                     className="p-2 rounded-full transition-colors"
                     style={{ color: 'var(--text-muted)' }}>
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

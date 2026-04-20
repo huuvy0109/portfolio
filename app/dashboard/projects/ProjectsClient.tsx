@@ -65,6 +65,7 @@ export default function ProjectsClient({ initialProjects }: { initialProjects: P
           </h1>
         </div>
         <button
+          data-testid="btn-new-project"
           onClick={() => setShowForm(v => !v)}
           className="font-mono text-sm px-4 py-2 rounded transition-all duration-200"
           style={{
@@ -81,6 +82,7 @@ export default function ProjectsClient({ initialProjects }: { initialProjects: P
       <AnimatePresence>
         {showForm && (
           <motion.form
+            data-testid="form-new-project"
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
@@ -94,6 +96,7 @@ export default function ProjectsClient({ initialProjects }: { initialProjects: P
                   Project Name
                 </label>
                 <input
+                  data-testid="input-project-name"
                   value={name}
                   onChange={e => {
                     setName(e.target.value)
@@ -110,6 +113,7 @@ export default function ProjectsClient({ initialProjects }: { initialProjects: P
                   Slug
                 </label>
                 <input
+                  data-testid="input-project-slug"
                   value={slug}
                   onChange={e => setSlug(e.target.value)}
                   required
@@ -120,11 +124,12 @@ export default function ProjectsClient({ initialProjects }: { initialProjects: P
               </div>
             </div>
             {error && (
-              <div className="font-mono text-[11px] px-3 py-2 rounded" style={{ background: 'rgba(255,68,68,0.08)', border: '1px solid rgba(255,68,68,0.2)', color: 'var(--accent-red)' }}>
+              <div data-testid="project-form-error" className="font-mono text-[11px] px-3 py-2 rounded" style={{ background: 'rgba(255,68,68,0.08)', border: '1px solid rgba(255,68,68,0.2)', color: 'var(--accent-red)' }}>
                 ✗ {error}
               </div>
             )}
             <button
+              data-testid="btn-create-project"
               type="submit"
               disabled={saving}
               className="btn-primary font-mono text-sm py-2 rounded self-start px-6 disabled:opacity-50"
@@ -137,14 +142,15 @@ export default function ProjectsClient({ initialProjects }: { initialProjects: P
 
       {/* Project list */}
       {projects.length === 0 ? (
-        <div className="text-center py-16 font-mono text-sm" style={{ color: 'var(--text-muted)' }}>
+        <div data-testid="projects-empty" className="text-center py-16 font-mono text-sm" style={{ color: 'var(--text-muted)' }}>
           No projects yet — create one above
         </div>
       ) : (
-        <div className="flex flex-col gap-3">
+        <div data-testid="projects-list" className="flex flex-col gap-3">
           {projects.map(p => (
             <motion.div
               key={p.id}
+              data-testid={`project-row-${p.slug}`}
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               className="flex items-center justify-between px-5 py-4 rounded-xl"
@@ -170,6 +176,7 @@ export default function ProjectsClient({ initialProjects }: { initialProjects: P
                   ⚙ Settings
                 </a>
                 <button
+                  data-testid={`btn-delete-${p.slug}`}
                   onClick={() => handleDelete(p.id)}
                   className="font-mono text-[11px] px-3 py-1.5 rounded transition-all duration-200"
                   style={{ border: '1px solid rgba(255,68,68,0.2)', color: 'var(--accent-red)', background: 'rgba(255,68,68,0.04)' }}

@@ -23,16 +23,24 @@ export async function POST(req: Request) {
   const { name, slug } = await req.json()
   if (!name || !slug) return NextResponse.json({ error: 'name and slug required' }, { status: 400 })
 
-  const [project] = await db
-    .insert(projects)
-    .values({ name, slug, ownerId: session.user.id })
-    .returning()
+  try {
+    const [project] = await db
+      .insert(projects)
+      .values({ name, slug, ownerId: session.user.id })
+      .returning()
 
-  await db.insert(userProjects).values({
-    userId: session.user.id,
-    projectId: project.id,
-    role: 'admin',
-  })
+    await db.insert(userProjects).values({
+      userId: session.user.id,
+      projectId: project.id,
+      role: 'admin',
+    })
 
-  return NextResponse.json(project, { status: 201 })
+    return NextResponse.json(project, { status: 201 })
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : ''
+    if (msg.includes('unique') || msg.includes('duplicate')) {
+      return NextResponse.json({ error: 'Slug already exists' }, { status: 409 })
+    }
+    return NextResponse.json({ error: 'Failed to create project' }, { status: 500 })
+  }
 }

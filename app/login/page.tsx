@@ -38,6 +38,7 @@ function LoginForm() {
 
   return (
     <main
+      data-testid="login-page"
       className="min-h-screen flex items-center justify-center px-4"
       style={{ background: 'var(--bg-primary)' }}
     >
@@ -80,12 +81,13 @@ function LoginForm() {
         >
           <div className="h-px mb-6" style={{ background: 'linear-gradient(90deg, var(--accent-cyan), transparent 70%)' }} />
 
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <form data-testid="login-form" onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div className="flex flex-col gap-1.5">
               <label className="font-mono text-[10px] uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>
                 Username
               </label>
               <input
+                data-testid="input-username"
                 type="text"
                 value={username}
                 onChange={e => setUsername(e.target.value)}
@@ -107,6 +109,7 @@ function LoginForm() {
                 Password
               </label>
               <input
+                data-testid="input-password"
                 type="password"
                 value={password}
                 onChange={e => setPassword(e.target.value)}
@@ -125,6 +128,7 @@ function LoginForm() {
 
             {error && (
               <div
+                data-testid="login-error"
                 className="font-mono text-[11px] px-3 py-2 rounded"
                 style={{ background: 'rgba(255,68,68,0.08)', border: '1px solid rgba(255,68,68,0.2)', color: 'var(--accent-red)' }}
               >
@@ -133,6 +137,7 @@ function LoginForm() {
             )}
 
             <button
+              data-testid="btn-login"
               type="submit"
               disabled={loading}
               className="btn-primary w-full py-3 font-mono text-sm font-medium mt-1 rounded disabled:opacity-50 disabled:cursor-not-allowed"

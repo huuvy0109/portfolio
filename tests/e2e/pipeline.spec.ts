@@ -15,8 +15,11 @@ test.describe('Pipeline Board', () => {
   })
 
   test('pipeline board renders 4 columns', async ({ page }) => {
-    await page.getByTestId('btn-run-pipeline').click()
-    await expect(page.getByTestId('column-ba-analyzing')).toBeVisible()
+    // Scroll to pipeline section and trigger from there
+    await page.locator('#pipeline').scrollIntoViewIfNeeded()
+    await page.getByTestId('btn-run-pipeline-section').click()
+    // All 4 columns are always in DOM — verify visible after trigger
+    await expect(page.getByTestId('column-ba-analyzing')).toBeVisible({ timeout: 10000 })
     await expect(page.getByTestId('column-ready-for-dev')).toBeVisible()
     await expect(page.getByTestId('column-qc-generating')).toBeVisible()
     await expect(page.getByTestId('column-ci-running')).toBeVisible()

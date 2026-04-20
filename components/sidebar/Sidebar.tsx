@@ -59,6 +59,7 @@ export default function Sidebar({ active, pipelinePhase, theme, setTheme, onNavC
 
   return (
     <nav
+      data-testid="sidebar"
       style={{
         width: 'var(--sidebar-w)',
         minHeight: '100vh',
@@ -152,6 +153,7 @@ export default function Sidebar({ active, pipelinePhase, theme, setTheme, onNavC
           {(['en', 'vi'] as const).map(l => (
             <button
               key={l}
+              data-testid={`lang-${l}`}
               onClick={() => setLang(l)}
               style={{
                 flex: 1,
@@ -226,6 +228,7 @@ export default function Sidebar({ active, pipelinePhase, theme, setTheme, onNavC
       {/* Theme selector */}
       <div style={{ padding: '12px 20px 0', borderTop: '1px solid var(--border)', marginTop: '12px' }}>
         <button
+          data-testid="btn-theme-toggle"
           onClick={() => setTweaksOpen(o => !o)}
           style={{
             width: '100%',
@@ -252,6 +255,7 @@ export default function Sidebar({ active, pipelinePhase, theme, setTheme, onNavC
             {THEMES.map(t => (
               <button
                 key={t.id}
+                data-testid={`theme-${t.id}`}
                 onClick={() => setTheme(t.id)}
                 style={{
                   width: '100%',

@@ -130,6 +130,7 @@ export default function PipelineSection() {
       <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
         {isIdle && (
           <button
+            data-testid="btn-run-pipeline-section"
             onClick={() => trigger()}
             style={{
               ...mono, fontSize: '12px', padding: '8px 18px', borderRadius: '6px', cursor: 'pointer',
@@ -160,6 +161,7 @@ export default function PipelineSection() {
           return (
             <div
               key={col.id}
+              data-testid={`column-${col.id}`}
               style={{
                 background: isActive ? 'rgba(var(--accent-rgb),0.05)' : 'var(--surface-2)',
                 border: `1px solid ${isActive ? 'rgba(var(--accent-rgb),0.25)' : 'var(--border)'}`,

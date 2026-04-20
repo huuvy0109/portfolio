@@ -144,6 +144,7 @@ function NodeCard({ node, isOpen, onToggle }: NodeCardProps) {
 
   return (
     <div
+      data-testid={`journey-node-${node.id}`}
       style={{
         background: 'var(--surface-2)',
         border: `1px solid ${isOpen ? `rgba(${rgb},0.25)` : 'var(--border)'}`,

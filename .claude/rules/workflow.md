@@ -38,8 +38,8 @@ Concept: trang web IS the Subject Under Test. Triết lý "Imperfect Reality".
 |-------|---------|-----------|
 | **Researcher** | Phân tích yêu cầu, lập plan, đọc codebase | Cached codebase map |
 | **Reviewer** | Validate plan theo DoD trước khi implement | Scale theo độ dài plan |
-| **Agent Dev** | Viết code, fix bug | Diff-only output |
-| **Agent Tester** | Viết + chạy Playwright test, báo lỗi · **Generate test case Playwright cho mọi thay đổi UI/logic** | Artifacts + log truncation |
+| **Agent Dev** | Viết code, fix bug, thêm `data-testid` trước khi bàn giao | Diff-only output |
+| **Agent Tester** | Audit `data-testid` → Generate spec → Chạy Playwright → Báo kết quả | Artifacts + log truncation |
 | **Tracking Agent** | Theo dõi tiến trình, retry, ghi log | Structured logging |
 
 ### Reviewer Mode Selection
@@ -49,6 +49,78 @@ IF thay đổi < 50 dòng AND single component:
 ELSE:
     spawn Explore agent để review độc lập
 ```
+
+---
+
+## 1b. Agent Tester — Trách nhiệm & Quy trình BẮT BUỘC
+
+> **Agent Tester PHẢI thực hiện đủ 4 bước sau theo thứ tự. Bỏ bước nào = vi phạm.**
+
+### Bước T1 — Audit `data-testid`
+Trước khi viết bất kỳ test nào, Agent Tester **phải** kiểm tra toàn bộ component trong scope:
+- Liệt kê các element cần test
+- Xác nhận `data-testid` đã có hay chưa
+- Nếu thiếu → **STOP**, yêu cầu Agent Dev thêm `data-testid` trước
+- **KHÔNG ĐƯỢC** dùng CSS class selector hoặc text selector thay thế khi testid bị thiếu
+
+### Bước T2 — Generate Spec (theo scope đầy đủ)
+
+Agent Tester phải cover **toàn bộ** các luồng sau khi có thay đổi liên quan:
+
+| Scope | File spec | Test cases bắt buộc |
+|-------|-----------|---------------------|
+| **Login / Auth** | `auth.spec.ts` | Valid login → redirect dashboard · Invalid credentials → error msg · Empty fields → block submit · Unauthenticated → redirect /login · Session guard trên mọi /dashboard/* route |
+| **Dashboard Home** | `dashboard.spec.ts` | Welcome + username render · Link Projects → /dashboard/projects · Link Users → /dashboard/users |
+| **Projects** | `projects.spec.ts` | List render (empty state + có data) · New Project btn → show form · Slug auto-generate từ name · Create success → append list · Create duplicate slug → error · Delete → confirm dialog → remove khỏi list |
+| **Project Runs / Trigger CI** | `project-runs.spec.ts` | Run table render (status badge, timestamp, passed/failed/skipped) · Detail modal open → load results · Detail modal close · Trigger CI btn visible khi có ciConfig · Trigger CI → success/error message |
+| **Hero Section** | `hero.spec.ts` | Heading · CTA button · Stats 4 items · Page title |
+| **Pipeline Board** | `pipeline.spec.ts` | 4 cột render · Trigger pipeline · Intentional flaky (có label AI Agent Error) |
+| **Journey / Accordion** | `journey.spec.ts` | Section render · Accordion expand/collapse · Company names visible · Year labels · Project links |
+| **Sanitizer** | `sanitizer.spec.ts` | Section render · Heading · Re-scan btn → SCANNING state |
+| **History** | `history.spec.ts` | Hidden ban đầu · Hiện sau ≥ 2 runs · Heading text |
+| **Footer** | `footer.spec.ts` | Visible · Email · Tech stack text |
+| **Theme / Language** | `theme-lang.spec.ts` | 3 theme buttons tồn tại · Switch theme → class thay đổi · EN/VI toggle → text thay đổi |
+| **Sidebar** | `sidebar.spec.ts` | Render desktop · Collapse/expand mobile · Active link state |
+
+### Bước T3 — Chạy test & phân loại kết quả
+
+```
+npx playwright test --reporter=list
+```
+
+Sau khi chạy, Agent Tester phải báo cáo theo format:
+
+```
+[PASS]  hero.spec.ts             4/4
+[PASS]  auth.spec.ts             5/5
+[FLAKY] pipeline.spec.ts         1/2  ← AI Agent Error — Simulated (có chủ đích)
+[FAIL]  projects.spec.ts         2/4  ← Code Bug / Test Issue / Env Issue
+```
+
+Phân loại failure:
+- **Code Bug** → báo Agent Dev fix → retry (max 3)
+- **Test Issue** → fix test spec → rerun (KHÔNG sửa code)
+- **Env Issue** → STOP, label `[BLOCKED]`, báo user
+- **Intentional Flaky** → giữ nguyên, label rõ `(AI Agent Error — Simulated)`
+
+### Bước T4 — Coverage Report
+
+Sau mỗi run, Agent Tester phải xuất tổng kết:
+
+```
+Total specs : N files
+Total cases : X cases
+Passed      : X
+Failed      : X  (Code Bug: n | Test Issue: n | Env: n)
+Flaky       : X  (Simulated — intentional)
+Coverage gap: [list spec files còn thiếu nếu có]
+```
+
+### Coverage Threshold (HARD RULE)
+
+- **Critical paths** (auth, dashboard, projects, runs): **100% must pass**
+- **Public portfolio** (hero, pipeline, journey, sanitizer, footer, history): **100% must pass** (trừ intentional flaky)
+- **Không được submit CONFIRM 2 nếu còn unclassified FAIL**
 
 ---
 
@@ -111,7 +183,9 @@ Max retry: 1. Nếu fail → escalate lên FULL MODE.
 
 ### Quy tắc Generate Test Case (Agent Tester — BẮT BUỘC)
 
-Mỗi khi Agent Dev hoàn thành bước implement, Agent Tester **phải** generate Playwright test case tương ứng trước khi chạy:
+Mỗi khi Agent Dev hoàn thành bước implement, Agent Tester **phải** thực hiện đủ Bước T1→T4 (xem mục 1b).
+
+**Quy tắc viết spec:**
 
 | Loại thay đổi | Test case bắt buộc |
 |--------------|-------------------|
@@ -120,11 +194,16 @@ Mỗi khi Agent Dev hoàn thành bước implement, Agent Tester **phải** gene
 | Form / input | Validation test + error state + submit flow |
 | Animation / scroll | Visibility test (whileInView, AnimatePresence) |
 | Navigation / routing | Link đúng target + scroll-to behavior |
+| Auth / protected route | Valid login · Invalid login · Unauthenticated redirect · Session guard |
+| CRUD (projects, users) | Create success · Create error · Delete confirm · List render |
+| CI trigger | Button hiển thị đúng điều kiện · Trigger success · Trigger error |
 
-- **Selector:** Ưu tiên `data-testid`. Nếu chưa có → Agent Dev thêm `data-testid` vào component trước khi test.
+- **Selector:** Ưu tiên `data-testid`. Nếu chưa có → STOP, yêu cầu Agent Dev thêm trước.
+- **Auth fixture:** Dashboard tests dùng `storageState` (Playwright auth setup) — KHÔNG login thủ công trong mỗi test.
 - **Naming:** `describe('[ComponentName]') → it('should [behavior] when [condition]')`
 - **Không hardcode** delay — dùng `waitFor` / `expect().toBeVisible()`
 - File test đặt tại `tests/e2e/`, đặt tên theo component: `journey.spec.ts`, `hero.spec.ts`…
+- **Auth setup file:** `tests/e2e/setup/auth.setup.ts` — chạy 1 lần trước toàn bộ dashboard tests
 
 ---
 
@@ -178,10 +257,10 @@ Mỗi khi Agent Dev hoàn thành bước implement, Agent Tester **phải** gene
 - **DoD đạt:** `npm run build` pass, 0 lỗi TypeScript
 
 ### ✅ Sprint 2 — Evidence & Flaky Logic (DONE)
-- [ ] `tests/e2e/hero.spec.ts` (expect PASS)
-- [ ] `tests/e2e/pipeline.spec.ts` — locator sai có chủ đích (expect FLAKY)
-- [ ] `.github/workflows/playwright.yml` — CI export HTML report
-- [ ] `SanitizerVisualizer` — code diff UI + masking `[REDACTED]`
+- [x] `tests/e2e/hero.spec.ts` (expect PASS)
+- [x] `tests/e2e/pipeline.spec.ts` — locator sai có chủ đích (expect FLAKY)
+- [x] `.github/workflows/playwright.yml` — CI export HTML report
+- [x] `SanitizerVisualizer` — code diff UI + masking `[REDACTED]`
 - [ ] Nhúng Playwright report link vào TerminalUI footer
 - **DoD:** CI chạy trên GitHub, có ≥ 1 flaky scenario visible trong UI
 

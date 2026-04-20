@@ -26,6 +26,6 @@ test.describe('Hero Section', () => {
   })
 
   test('page title is correct', async ({ page }) => {
-    await expect(page).toHaveTitle(/Huu Vy/)
+    await expect(page).toHaveTitle(/Vy Quang Huu/)
   })
 })

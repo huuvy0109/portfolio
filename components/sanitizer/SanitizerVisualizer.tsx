@@ -1,218 +1,117 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { useLang } from '@/lib/context/LanguageContext'
 
 interface DataField {
   label: string
   raw: string
   masked: string
   type: 'email' | 'token' | 'phone' | 'name'
+  accent: string
 }
 
-const MOCK_FIELDS: DataField[] = [
-  { label: 'reporter_email', raw: 'john.doe@client.com',      masked: '[REDACTED:email]',   type: 'email' },
-  { label: 'auth_token',     raw: 'eyJhbGciOiJSUzI1NiJ9...', masked: '[REDACTED:token]',   type: 'token' },
-  { label: 'phone_number',   raw: '+84 091 234 5678',         masked: '[REDACTED:phone]',   type: 'phone' },
-  { label: 'tester_name',    raw: 'Nguyen Van A',             masked: '[REDACTED:pii]',     type: 'name'  },
+const FIELDS: DataField[] = [
+  { label: 'reporter_email', raw: 'john.doe@client.com',      masked: '[REDACTED:email]', type: 'email', accent: 'accent3'  },
+  { label: 'auth_token',     raw: 'eyJhbGciOiJSUzI1NiJ9...', masked: '[REDACTED:token]', type: 'token', accent: 'danger'   },
+  { label: 'phone_number',   raw: '+84 091 234 5678',         masked: '[REDACTED:phone]', type: 'phone', accent: 'warn'     },
+  { label: 'tester_name',    raw: 'Nguyen Van A',             masked: '[REDACTED:pii]',   type: 'name',  accent: 'accent2'  },
 ]
 
-const TYPE_COLOR: Record<DataField['type'], string> = {
-  email: 'var(--accent-blue)',
-  token: 'var(--accent-red)',
-  phone: 'var(--accent-yellow)',
-  name:  'var(--accent-purple)',
-}
-
 export default function SanitizerVisualizer() {
-  const [maskedCount, setMaskedCount] = useState(0)
+  const { lang } = useLang()
+  const [count, setCount] = useState(0)
   const [scanning, setScanning] = useState(false)
-  const [done, setDone] = useState(false)
 
-  const runScan = () => {
-    setMaskedCount(0)
-    setDone(false)
+  const mono: React.CSSProperties = { fontFamily: 'var(--font-mono), JetBrains Mono, monospace' }
+
+  const T = {
+    en: { eyebrow: '// Sanitizer', title: 'Data Sanitization Pipeline', desc: 'PII masking before test reports are published — no sensitive data in artifacts.', scanning: 'Scanning...', done: 'fields redacted', ready: 'Ready', rescan: '↺ Re-scan' },
+    vi: { eyebrow: '// Sanitizer', title: 'Pipeline Làm Sạch Dữ Liệu', desc: 'Che giấu PII trước khi xuất báo cáo test — không có dữ liệu nhạy cảm trong artifacts.', scanning: 'Đang quét...', done: 'trường đã ẩn', ready: 'Sẵn sàng', rescan: '↺ Quét Lại' },
+  }[lang]
+
+  const run = () => {
+    setCount(0)
     setScanning(true)
-
-    MOCK_FIELDS.forEach((_, i) => {
+    FIELDS.forEach((_, i) => {
       setTimeout(() => {
-        setMaskedCount(i + 1)
-        if (i === MOCK_FIELDS.length - 1) {
-          setScanning(false)
-          setDone(true)
-        }
+        setCount(i + 1)
+        if (i === FIELDS.length - 1) setScanning(false)
       }, 600 * (i + 1))
     })
   }
 
-  useEffect(() => { runScan() }, [])
+  useEffect(() => { run() }, [])
 
   return (
-    <section id="sanitizer" data-testid="sanitizer-section" className="py-20 px-4 max-w-7xl mx-auto w-full">
-      {/* Header */}
-      <div className="mb-8">
-        <div className="font-mono text-[10px] text-[var(--accent-green)] uppercase tracking-widest mb-2">
-          // SANITIZER VISUALIZER
+    <div data-testid="sanitizer-section" style={{ padding: '48px 0' }}>
+      <div style={{ marginBottom: '28px' }}>
+        <div style={{ ...mono, fontSize: '10px', color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '8px' }}>
+          {T.eyebrow}
         </div>
-        <div className="flex items-start justify-between gap-4 flex-wrap">
-          <div>
-            <h2 data-testid="sanitizer-heading" className="text-2xl font-bold text-[var(--text-primary)] mb-1">
-              Data Sanitization Pipeline
-            </h2>
-            <p className="text-sm text-[var(--text-secondary)] max-w-lg">
-              External project reports are scanned before display. PII and credentials
-              are automatically masked — no raw data is ever exposed.
-            </p>
-          </div>
-          <div className="flex items-center gap-2 shrink-0">
-            <span
-              className="font-mono text-[10px] px-2.5 py-1 rounded"
-              style={{ background: 'rgba(0,255,157,0.07)', border: '1px solid rgba(0,255,157,0.25)', color: 'var(--accent-green)' }}
-            >
-              NDA Protected
-            </span>
-            <span
-              className="font-mono text-[10px] px-2.5 py-1 rounded"
-              style={{ background: 'rgba(96,165,250,0.07)', border: '1px solid rgba(96,165,250,0.25)', color: 'var(--accent-blue)' }}
-            >
-              OWASP Compliant
-            </span>
-          </div>
-        </div>
+        <h2 data-testid="sanitizer-heading" style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '8px' }}>
+          {T.title}
+        </h2>
+        <p style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.6 }}>{T.desc}</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        {/* Before panel */}
-        <div
-          className="rounded-xl overflow-hidden"
-          style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)' }}
-        >
-          <div
-            className="flex items-center justify-between px-4 py-3 border-b"
-            style={{ borderColor: 'var(--border-subtle)', background: 'var(--bg-secondary)' }}
-          >
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-[var(--accent-red)]" />
-              <span className="font-mono text-xs text-[var(--text-secondary)]">raw_report.json — UNSAFE</span>
-            </div>
-            <span className="font-mono text-[10px] text-[var(--accent-red)]">⚠ CONTAINS PII</span>
-          </div>
-          <div className="p-4 space-y-2.5 font-mono text-xs">
-            {MOCK_FIELDS.map((field) => (
-              <div key={field.label} className="flex gap-3">
-                <span className="text-[var(--text-muted)] shrink-0 w-32">{field.label}:</span>
-                <span style={{ color: TYPE_COLOR[field.type] }}>&quot;{field.raw}&quot;</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* After panel */}
-        <div
-          className="rounded-xl overflow-hidden"
-          style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)' }}
-        >
-          <div
-            className="flex items-center justify-between px-4 py-3 border-b"
-            style={{ borderColor: 'var(--border-subtle)', background: 'var(--bg-secondary)' }}
-          >
-            <div className="flex items-center gap-2">
-              {scanning && (
-                <div
-                  className="w-2 h-2 rounded-full bg-[var(--accent-yellow)]"
-                  style={{ animation: 'pulse-glow 0.8s ease-in-out infinite' }}
-                />
-              )}
-              {done && <div className="w-2 h-2 rounded-full bg-[var(--accent-green)]" />}
-              <span className="font-mono text-xs text-[var(--text-secondary)]">
-                sanitized_report.json — {scanning ? 'SCANNING...' : 'SAFE'}
-              </span>
-            </div>
-            {done && (
-              <span className="font-mono text-[10px] text-[var(--accent-green)]">✓ {maskedCount} fields masked</span>
-            )}
-          </div>
-
-          <div className="p-4 space-y-2.5 font-mono text-xs">
-            {MOCK_FIELDS.map((field, i) => {
-              const isRedacted = i < maskedCount
-              return (
-                <div key={field.label} className="flex gap-3">
-                  <span className="text-[var(--text-muted)] shrink-0 w-32">{field.label}:</span>
-                  <AnimatePresence mode="wait">
-                    {isRedacted ? (
-                      <motion.span
-                        key="masked"
-                        initial={{ opacity: 0, filter: 'blur(4px)' }}
-                        animate={{ opacity: 1, filter: 'blur(0px)' }}
-                        transition={{ duration: 0.3 }}
-                        style={{ color: 'var(--accent-green)' }}
-                      >
-                        &quot;{field.masked}&quot;
-                      </motion.span>
-                    ) : (
-                      <motion.span
-                        key="raw"
-                        exit={{ opacity: 0 }}
-                        style={{ color: TYPE_COLOR[field.type] }}
-                      >
-                        &quot;{field.raw}&quot;
-                      </motion.span>
-                    )}
-                  </AnimatePresence>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-      </div>
-
-      {/* Agent log */}
-      <div
-        className="mt-4 rounded-lg px-4 py-3 font-mono text-xs"
-        style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-subtle)' }}
-      >
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-[var(--text-muted)] uppercase tracking-widest text-[10px]">Agent Sanitizer Log</span>
+      <div style={{ background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: '10px', overflow: 'hidden' }}>
+        {/* Header */}
+        <div style={{
+          padding: '10px 16px',
+          borderBottom: '1px solid var(--border)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          background: 'var(--surface-3)',
+        }}>
+          <span style={{ ...mono, fontSize: '10px', color: 'var(--text-dim)' }}>
+            {scanning
+              ? `${T.scanning} ${count}/${FIELDS.length}`
+              : count === FIELDS.length
+                ? `✓ ${count} ${T.done}`
+                : T.ready}
+          </span>
           <button
             data-testid="btn-rescan"
-            onClick={runScan}
-            className="text-[10px] px-2.5 py-1 rounded transition-all duration-200"
-            style={{ border: '1px solid var(--border-dim)', color: 'var(--text-muted)' }}
-            onMouseEnter={e => { e.currentTarget.style.color = 'var(--accent-green)'; e.currentTarget.style.borderColor = 'rgba(0,255,157,0.3)' }}
-            onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.borderColor = 'var(--border-dim)' }}
+            onClick={run}
+            style={{
+              ...mono, fontSize: '10px', padding: '4px 10px', borderRadius: '5px', cursor: 'pointer',
+              border: '1px solid var(--border)', background: 'var(--surface-2)', color: 'var(--text-dim)',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.color = 'var(--accent)'; e.currentTarget.style.borderColor = 'rgba(var(--accent-rgb),0.3)' }}
+            onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-dim)'; e.currentTarget.style.borderColor = 'var(--border)' }}
           >
-            ↺ Re-scan
+            {T.rescan}
           </button>
         </div>
-        <div className="space-y-0.5">
-          {Array.from({ length: maskedCount }).map((_, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, x: -4 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="flex gap-3 text-[11px]"
-            >
-              <span className="text-[var(--text-muted)]">{new Date().toLocaleTimeString('en-US', { hour12: false })}</span>
-              <span className="text-[var(--accent-green)]">
-                ✓ Masked field &quot;{MOCK_FIELDS[i].label}&quot; → {MOCK_FIELDS[i].masked}
-              </span>
-            </motion.div>
-          ))}
-          {done && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="flex gap-3 text-[11px] mt-1"
-            >
-              <span className="text-[var(--text-muted)]">{new Date().toLocaleTimeString('en-US', { hour12: false })}</span>
-              <span style={{ color: 'var(--accent-blue)' }}>
-                ✓ Sanitization complete. Report cleared for display.
-              </span>
-            </motion.div>
-          )}
+
+        {/* Fields */}
+        <div style={{ padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          {FIELDS.map((f, i) => {
+            const masked = i < count
+            const color = `var(--${f.accent})`
+            return (
+              <div
+                key={f.label}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '12px',
+                  padding: '9px 12px', borderRadius: '6px',
+                  background: masked ? 'rgba(0,0,0,0.15)' : 'var(--surface-3)',
+                  border: '1px solid var(--border)',
+                  transition: 'all 0.3s',
+                }}
+              >
+                <span style={{ ...mono, fontSize: '10px', color, width: '80px', flexShrink: 0 }}>{f.type}</span>
+                <span style={{ ...mono, fontSize: '10px', color: 'var(--text-dim)', flex: 1 }}>{f.label}</span>
+                <span style={{ ...mono, fontSize: '10px', color: masked ? color : 'var(--text-secondary)', flex: 1, textAlign: 'right' }}>
+                  {masked ? f.masked : f.raw}
+                </span>
+              </div>
+            )
+          })}
         </div>
       </div>
-    </section>
+    </div>
   )
 }

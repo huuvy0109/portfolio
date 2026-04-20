@@ -1,476 +1,306 @@
 'use client'
 
-import { useRef } from 'react'
-import { motion, useScroll, useTransform } from 'framer-motion'
+import { useState } from 'react'
+import { useLang } from '@/lib/context/LanguageContext'
 
-/* ── Timeline nodes (mới → cũ) ───────────────────────────────── */
+type AccentVar = 'accent' | 'accent2' | 'accent3'
 
-const nodes = [
+interface VisualItem {
+  icon: string
+  en: { label: string; sub: string }
+  vi: { label: string; sub: string }
+}
+
+interface MetricItem {
+  en: { label: string; value: string }
+  vi: { label: string; value: string }
+}
+
+interface Node {
+  id: string
+  period: { en: string; vi: string }
+  company: string
+  subtitle: { en: string; vi: string }
+  role: { en: string; vi: string }
+  badge: { en: string; vi: string }
+  accentVar: AccentVar
+  desc: { en: string; vi: string }
+  tags: string[]
+  link?: { label: string; url: string }
+  visual?: VisualItem[]
+  visualLabel?: { en: string; vi: string }
+  metrics?: MetricItem[]
+  metricsLabel?: { en: string; vi: string }
+  award?: { en: { title: string; note: string }; vi: { title: string; note: string } }
+}
+
+const NODES: Node[] = [
   {
     id: 'kiland',
-    year: 'Oct 2025',
-    yearSub: 'Hiện tại',
+    period: { en: 'Oct 2025 — Present', vi: 'Tháng 10/2025 — Hiện Tại' },
     company: 'KiLand',
-    subtitle: 'Freelance · Phát triển bản thân',
-    role: 'QC Engineer (Sole)',
-    highlight: 'AI-Powered QA',
-    accent: 'var(--accent-purple)',
-    accentRgb: '192,132,252',
-    note: 'Freelance',
-    desc: 'QC Engineer duy nhất cho KiLand.com.vn — nền tảng B2B SaaS giúp các agency bất động sản quản lý CRM, danh mục sản phẩm, hiệu suất nhóm và báo cáo thời gian thực. Xây dựng toàn bộ quy trình QC từ đầu: chiến lược test, test plan, automation framework. Ứng dụng bộ công cụ AI-powered QA hiện đại.',
+    subtitle: { en: 'Freelance', vi: 'Tự do' },
+    role: { en: 'QC Engineer (Sole)', vi: 'QC Engineer (Duy Nhất)' },
+    badge: { en: 'AI-Powered QA', vi: 'QA Dùng AI' },
+    accentVar: 'accent2',
+    desc: {
+      en: 'Sole QC Engineer for KiLand.com.vn — a B2B SaaS CRM platform for real estate agencies. Built the entire QA process from scratch: test strategy, test plan, and automation framework using modern AI-powered tooling.',
+      vi: 'QC Engineer duy nhất cho KiLand.com.vn — nền tảng B2B SaaS CRM cho agency bất động sản. Xây dựng toàn bộ quy trình QC từ đầu: chiến lược test, test plan, automation framework với bộ công cụ AI hiện đại.',
+    },
     tags: ['Playwright MCP', 'Cursor AI', 'Claude AI', 'GitHub Actions', 'POM'],
-    project: { name: 'KiLand.com.vn', url: 'https://kiland.com.vn' },
-    visual: 'kiland',
+    link: { label: 'KiLand.com.vn', url: 'https://kiland.com.vn' },
+    visual: [
+      { icon: '⬡', en: { label: 'Cursor AI', sub: 'Code generation · Refactor' }, vi: { label: 'Cursor AI', sub: 'Sinh code · Refactor tự động' } },
+      { icon: '◈', en: { label: 'Claude AI', sub: 'Requirement analysis · Test cases' }, vi: { label: 'Claude AI', sub: 'Phân tích yêu cầu · Sinh test case' } },
+      { icon: '▶', en: { label: 'Playwright MCP', sub: 'E2E automation' }, vi: { label: 'Playwright MCP', sub: 'Tự động hóa E2E' } },
+      { icon: '⚙', en: { label: 'GitHub Actions', sub: 'CI/CD pipeline' }, vi: { label: 'GitHub Actions', sub: 'CI/CD pipeline' } },
+    ],
+    visualLabel: { en: '// AI Stack', vi: '// Bộ Công Cụ AI' },
   },
   {
     id: 'seedcom-senior',
-    year: 'Jan 2025',
-    yearSub: 'Oct 2025',
+    period: { en: 'Jan 2025 — Oct 2025', vi: 'Tháng 1/2025 — Tháng 10/2025' },
     company: 'Seedcom Food',
-    subtitle: 'Seedcom Group',
-    role: 'Senior QC Engineer',
-    highlight: 'Zero Critical Bugs',
-    accent: 'var(--accent-cyan)',
-    accentRgb: '0,229,255',
-    note: 'Playwright automation · Giảm 40% regression',
-    desc: 'Triển khai Playwright automation giảm ~40% công effort regression. Phụ trách chất lượng E2E cho 4 module cốt lõi: HRM, E-Signature, Tuyển dụng, Lương thưởng trên nền tảng siêu thị Odoo.',
+    subtitle: { en: 'Seedcom Group', vi: 'Seedcom Group' },
+    role: { en: 'Senior QC Engineer', vi: 'Senior QC Engineer' },
+    badge: { en: 'Zero Critical Bugs', vi: 'Không Bug Nghiêm Trọng' },
+    accentVar: 'accent',
+    desc: {
+      en: 'Implemented Playwright automation reducing regression effort by ~40%. End-to-end quality ownership across 4 core modules: HRM, E-Signature, Recruitment, and Payroll on the Odoo platform.',
+      vi: 'Triển khai Playwright automation giảm ~40% công effort regression. Phụ trách chất lượng E2E cho 4 module cốt lõi: HRM, E-Signature, Tuyển dụng, Lương thưởng trên nền tảng Odoo.',
+    },
     tags: ['Playwright', 'Odoo', 'E2E', 'Regression', 'Integration', 'API Testing'],
-    project: { name: 'Sieuthisi.vn', url: 'https://sieuthisi.vn' },
-    visual: 'pipeline',
+    link: { label: 'Sieuthisi.vn', url: 'https://sieuthisi.vn' },
+    metrics: [
+      { en: { label: 'Regression effort', value: '−40%' }, vi: { label: 'Giảm công regression', value: '−40%' } },
+      { en: { label: 'Critical bugs in prod', value: '0' }, vi: { label: 'Bug nghiêm trọng lọt prod', value: '0' } },
+      { en: { label: 'Modules covered', value: '4' }, vi: { label: 'Module phụ trách', value: '4' } },
+      { en: { label: 'Systems integrated', value: '5+' }, vi: { label: 'Hệ thống tích hợp', value: '5+' } },
+    ],
+    metricsLabel: { en: '// QA Metrics', vi: '// Chỉ Số QA' },
   },
   {
     id: 'qc-lead',
-    year: 'Jan 2024',
-    yearSub: 'Dec 2024',
+    period: { en: 'Jan 2024 — Dec 2024', vi: 'Tháng 1/2024 — Tháng 12/2024' },
     company: 'Seedcom Food',
-    subtitle: 'Seedcom Group',
-    role: 'QC Lead (kiêm Senior QCE)',
-    highlight: '95%+ On-time',
-    accent: 'var(--accent-cyan)',
-    accentRgb: '0,229,255',
-    //note: 'Kiêm nhiệm song song hai đơn vị',
-    desc: 'Dẫn dắt QC team QC của Seedcom Food. Tỷ lệ đúng hạn 95%+, xây dựng KPI dashboard theo dõi chất lượng. Tham gia với vai trò Senior QCE cho sieuthisi.vn.',
+    subtitle: { en: 'Seedcom Group', vi: 'Seedcom Group' },
+    role: { en: 'QC Lead (+ Senior QCE)', vi: 'QC Lead (kiêm Senior QCE)' },
+    badge: { en: '95%+ On-time', vi: '95%+ Đúng Hạn' },
+    accentVar: 'accent',
+    desc: {
+      en: 'Led the QC team at Seedcom Food with 95%+ on-time delivery rate. Built a KPI dashboard for quality tracking. Concurrently contributed as Senior QCE for sieuthisi.vn.',
+      vi: 'Dẫn dắt QC team Seedcom Food — tỷ lệ đúng hạn 95%+. Xây dựng KPI dashboard theo dõi chất lượng. Tham gia với vai trò Senior QCE cho sieuthisi.vn.',
+    },
     tags: ['Jira', 'KPI Dashboard', 'Test Strategy', 'Team Lead'],
-    project: { name: 'Sieuthisi.vn', url: 'https://sieuthisi.vn' },
-    visual: null,
+    link: { label: 'Sieuthisi.vn', url: 'https://sieuthisi.vn' },
   },
   {
     id: 'haravan-specialist',
-    year: 'Mar 2022',
-    yearSub: 'Dec 2023',
+    period: { en: 'Mar 2022 — Dec 2023', vi: 'Tháng 3/2022 — Tháng 12/2023' },
     company: 'Haravan',
-    subtitle: 'Seedcom Group',
-    role: 'QC Specialist',
-    highlight: '-25% Triage Time',
-    accent: 'var(--accent-blue)',
-    accentRgb: '96,165,250',
-    note: 'Rút ngắn 25% thời gian triage · Tích hợp đa module',
-    desc: 'Cải thiện quy trình triage và cross-module testing trên Haraworks.vn. Phụ trách kiểm thử tích hợp giữa các module phức tạp: HRM, BPM, IoT, SCM, CRM và hệ thống ngoài (Acumatica ERP, WMS, GHN).',
+    subtitle: { en: 'Seedcom Group', vi: 'Seedcom Group' },
+    role: { en: 'QC Specialist', vi: 'QC Specialist' },
+    badge: { en: '−25% Triage Time', vi: '−25% Thời Gian Triage' },
+    accentVar: 'accent3',
+    desc: {
+      en: 'Improved triage and cross-module testing on Haraworks.vn. Owned integration testing across complex modules: HRM, BPM, IoT, SCM, CRM, and external systems (Acumatica ERP, WMS, GHN).',
+      vi: 'Cải thiện quy trình triage và cross-module testing trên Haraworks.vn. Phụ trách kiểm thử tích hợp giữa các module phức tạp: HRM, BPM, IoT, SCM, CRM và hệ thống ngoài (Acumatica ERP, WMS, GHN).',
+    },
     tags: ['HRM', 'BPM', 'IoT', 'SCM', 'Postman', 'Jira'],
-    project: { name: 'Haraworks.vn', url: 'https://like.haraworks.vn' },
-    visual: 'metrics',
+    link: { label: 'Haraworks.vn', url: 'https://like.haraworks.vn' },
   },
   {
     id: 'haravan-engineer',
-    year: 'Jan 2019',
-    yearSub: 'Feb 2022',
+    period: { en: 'Jan 2019 — Feb 2022', vi: 'Tháng 1/2019 — Tháng 2/2022' },
     company: 'Haravan',
-    subtitle: 'Seedcom Group',
-    role: 'QC Engineer',
-    highlight: 'Day One',
-    accent: 'var(--accent-blue)',
-    accentRgb: '96,165,250',
-    note: 'Ngày đầu tiên · 6 module · Xây QA process từ đầu',
-    desc: 'Tham gia từ ngày đầu xây dựng Haraworks.vn phục vụ GHN (11.000+ nhân viên), The Coffee House (~100 cửa hàng), CellphoneS, JUNO. Xây dựng test plan, test case, checklist từ con số không.',
+    subtitle: { en: 'Seedcom Group', vi: 'Seedcom Group' },
+    role: { en: 'QC Engineer', vi: 'QC Engineer' },
+    badge: { en: 'Day One', vi: 'Ngày Đầu Tiên' },
+    accentVar: 'accent3',
+    desc: {
+      en: 'Joined from day one to build Haraworks.vn — serving GHN (11,000+ employees), The Coffee House (~100 stores), CellphoneS, and JUNO. Built test plans, test cases, and checklists from scratch.',
+      vi: 'Tham gia từ ngày đầu xây dựng Haraworks.vn phục vụ GHN (11.000+ nhân viên), The Coffee House (~100 cửa hàng), CellphoneS, JUNO. Xây dựng test plan, test case, checklist từ con số không.',
+    },
     tags: ['Manual Testing', 'Test Planning', 'Checklist', 'Regression'],
-    project: { name: 'Haraworks.vn', url: 'https://like.haraworks.vn' },
-    visual: null,
-    award: { title: 'Nhân viên xuất sắc năm 2019', note: 'Ghi nhận đóng góp nổi bật cho chất lượng sản phẩm và phối hợp liên nhóm' },
+    link: { label: 'Haraworks.vn', url: 'https://like.haraworks.vn' },
+    award: {
+      en: { title: 'Employee of the Year 2019', note: 'Outstanding contribution to product quality and cross-team collaboration' },
+      vi: { title: 'Nhân Viên Xuất Sắc Năm 2019', note: 'Ghi nhận đóng góp nổi bật cho chất lượng sản phẩm và phối hợp liên nhóm' },
+    },
   },
 ]
 
-/* ── Visual panels ────────────────────────────────────────────── */
-
-function KiLandVisual({ accent, accentRgb }: { accent: string; accentRgb: string }) {
-  const stack = [
-    { label: 'Cursor AI', role: 'Sinh test code · Refactor tự động', icon: '⬡' },
-    { label: 'Claude AI', role: 'Phân tích yêu cầu · Sinh test case', icon: '◈' },
-    { label: 'Playwright MCP', role: 'Tự động hóa E2E trên web', icon: '▶' },
-    { label: 'GitHub Actions', role: 'CI/CD pipeline', icon: '⚙' },
-  ]
-  return (
-    <div className="flex flex-col gap-2 mt-3">
-      <div className="font-mono text-[9px] uppercase tracking-widest mb-1" style={{ color: accent }}>
-        // AI STACK
-      </div>
-      {stack.map((s, i) => (
-        <motion.div
-          key={s.label}
-          initial={{ opacity: 0, x: 10 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: i * 0.08, duration: 0.3 }}
-          className="flex items-center gap-2.5 p-2 rounded"
-          style={{ background: `rgba(${accentRgb},0.04)`, border: `1px solid rgba(${accentRgb},0.1)` }}
-        >
-          <span className="font-mono text-xs shrink-0" style={{ color: accent }}>{s.icon}</span>
-          <div>
-            <div className="font-mono text-[10px] font-medium" style={{ color: 'var(--text-primary)' }}>{s.label}</div>
-            <div className="font-mono text-[8px]" style={{ color: 'var(--text-muted)' }}>{s.role}</div>
-          </div>
-        </motion.div>
-      ))}
-    </div>
-  )
+interface NodeCardProps {
+  node: Node
+  isOpen: boolean
+  onToggle: () => void
 }
 
-function PipelineVisual({ accent }: { accent: string; accentRgb?: string }) {
-  const rows = [
-    { label: 'Test Suite', value: 'PASS', color: 'var(--accent-green)' },
-    { label: 'Bug nghiêm trọng', value: '0 lọt prod', color: 'var(--accent-green)' },
-    { label: 'Regression', value: 'Giảm 40%', color: accent },
-    { label: 'Tích hợp', value: '5+ hệ thống', color: accent },
-  ]
-  return (
-    <div className="flex flex-col gap-2 mt-3">
-      <div className="font-mono text-[9px] uppercase tracking-widest mb-1" style={{ color: accent }}>
-        // QA METRICS
-      </div>
-      {rows.map((row, i) => (
-        <motion.div
-          key={row.label}
-          initial={{ opacity: 0, x: 10 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: i * 0.07, duration: 0.3 }}
-          className="flex items-center justify-between px-2 py-1.5 rounded"
-          style={{ background: 'rgba(255,255,255,0.03)' }}
-        >
-          <span className="font-mono text-[10px]" style={{ color: 'var(--text-muted)' }}>{row.label}</span>
-          <span className="font-mono text-[10px] font-medium" style={{ color: row.color }}>{row.value}</span>
-        </motion.div>
-      ))}
-    </div>
-  )
-}
-
-function MiniDonut({ pct, accent, accentRgb }: { pct: number; accent: string; accentRgb: string }) {
-  const r = 18, circ = 2 * Math.PI * r
-  return (
-    <svg width="44" height="44" viewBox="0 0 44 44" style={{ flexShrink: 0 }}>
-      <circle cx="22" cy="22" r={r} fill="none" stroke={`rgba(${accentRgb},0.12)`} strokeWidth="4" />
-      <motion.circle
-        cx="22" cy="22" r={r} fill="none"
-        stroke={accent} strokeWidth="4" strokeLinecap="round"
-        strokeDasharray={circ}
-        initial={{ strokeDashoffset: circ }}
-        whileInView={{ strokeDashoffset: circ - (pct / 100) * circ }}
-        viewport={{ once: true }}
-        transition={{ duration: 1.1, delay: 0.2, ease: 'easeOut' }}
-        style={{ transformOrigin: '22px 22px', rotate: '-90deg' }}
-      />
-      <text x="22" y="26" textAnchor="middle" fontSize="9" fontFamily="monospace" fill={accent} fontWeight="700">
-        {pct}%
-      </text>
-    </svg>
-  )
-}
-
-function MetricsVisual({ accent, accentRgb }: { accent: string; accentRgb: string }) {
-  const cards = [
-    { icon: '▣', title: 'Tỷ lệ bắt bug', sub: 'Trước khi release', pct: 92 },
-    { icon: '⬡', title: 'Độ phủ test', sub: 'Web + Mobile · 8 mod', pct: 78 },
-  ]
-  return (
-    <div className="flex flex-col gap-2 mt-3">
-      <div className="font-mono text-[9px] uppercase tracking-widest mb-1" style={{ color: accent }}>
-        // QA IMPACT
-      </div>
-      <div className="grid grid-cols-2 gap-2">
-        {cards.map((c, i) => (
-          <motion.div
-            key={c.title}
-            initial={{ opacity: 0, y: 8 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: i * 0.09, duration: 0.3 }}
-            className="rounded p-2.5 flex flex-col gap-1.5"
-            style={{ background: `rgba(${accentRgb},0.04)`, border: `1px solid rgba(${accentRgb},0.1)` }}
-          >
-            <div className="flex items-center justify-between gap-1">
-              <div className="font-mono text-[8px] uppercase tracking-wide" style={{ color: 'var(--text-muted)' }}>
-                {c.icon} {c.title}
-              </div>
-              <MiniDonut pct={c.pct} accent={accent} accentRgb={accentRgb} />
-            </div>
-            <div className="font-mono text-[8px]" style={{ color: 'var(--text-muted)' }}>{c.sub}</div>
-          </motion.div>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-/* ── Timeline node card ───────────────────────────────────────── */
-
-function TimelineNode({ node, index }: { node: typeof nodes[0]; index: number }) {
-  const isLeft = index % 2 === 0
+function NodeCard({ node, isOpen, onToggle }: NodeCardProps) {
+  const { lang } = useLang()
+  const acc = `var(--${node.accentVar})`
+  const rgb = `var(--${node.accentVar}-rgb)`
+  const mono: React.CSSProperties = { fontFamily: 'var(--font-mono), JetBrains Mono, monospace' }
 
   return (
-    <div className="relative flex items-start gap-0 min-h-0">
-
-      {/* ── Desktop: Left side content ── */}
-      <div className="hidden lg:flex flex-1 justify-end pr-8 pt-1 self-start">
-        {isLeft ? (
-          <NodeCard node={node} />
-        ) : (
-          <YearLabel node={node} align="right" />
-        )}
-      </div>
-
-      {/* ── Center: dot ── */}
-      <div className="flex flex-col items-center shrink-0 z-10 self-start pt-1">
-        <motion.div
-          initial={{ scale: 0, opacity: 0 }}
-          whileInView={{ scale: 1, opacity: 1 }}
-          viewport={{ once: true, margin: '-60px' }}
-          transition={{ duration: 0.4, ease: 'backOut' }}
-          className="w-3 h-3 rounded-full border-2 flex items-center justify-center"
-          style={{
-            borderColor: node.accent,
-            background: 'var(--surface-lowest)',
-            boxShadow: `0 0 12px rgba(${node.accentRgb},0.5), 0 0 24px rgba(${node.accentRgb},0.2)`,
-          }}
-        >
-          <div className="w-1.5 h-1.5 rounded-full" style={{ background: node.accent }} />
-        </motion.div>
-      </div>
-
-      {/* ── Desktop: Right side content ── */}
-      <div className="hidden lg:flex flex-1 pl-8 pt-1 self-start">
-        {isLeft ? (
-          <YearLabel node={node} align="left" />
-        ) : (
-          <NodeCard node={node} />
-        )}
-      </div>
-
-      {/* ── Mobile: always right ── */}
-      <div className="lg:hidden flex-1 pl-5 pt-0">
-        <div className="mb-2">
-          <YearLabel node={node} align="left" />
-        </div>
-        <NodeCard node={node} />
-      </div>
-
-    </div>
-  )
-}
-
-function YearLabel({ node, align }: { node: typeof nodes[0]; align: 'left' | 'right' }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, x: align === 'left' ? -12 : 12 }}
-      whileInView={{ opacity: 1, x: 0 }}
-      viewport={{ once: true, margin: '-60px' }}
-      transition={{ duration: 0.45, delay: 0.1 }}
-      className={`flex flex-col ${align === 'right' ? 'items-end' : 'items-start'}`}
-    >
-      <span
-        className="font-mono font-bold leading-none"
-        style={{
-          fontSize: '1.75rem',
-          color: node.accent,
-          textShadow: `0 0 20px rgba(${node.accentRgb},0.6), 0 0 40px rgba(${node.accentRgb},0.25)`,
-          letterSpacing: '-0.02em',
-        }}
-      >
-        {node.year}
-      </span>
-      <span className="font-mono text-[10px] mt-0.5" style={{ color: `rgba(${node.accentRgb},0.5)` }}>
-        → {node.yearSub}
-      </span>
-    </motion.div>
-  )
-}
-
-function NodeCard({ node }: { node: typeof nodes[0] }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-60px' }}
-      transition={{ duration: 0.5, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
-      className="w-full max-w-md rounded-xl overflow-hidden"
+    <div
       style={{
-        background: 'var(--surface-low)',
-        border: `1px solid rgba(${node.accentRgb},0.12)`,
-        boxShadow: `0 4px 24px rgba(0,0,0,0.4), 0 0 1px rgba(${node.accentRgb},0.2)`,
+        background: 'var(--surface-2)',
+        border: `1px solid ${isOpen ? `rgba(${rgb},0.25)` : 'var(--border)'}`,
+        borderRadius: '10px',
+        overflow: 'hidden',
+        transition: 'border-color 0.2s',
+        cursor: 'pointer',
       }}
+      onClick={onToggle}
     >
-      {/* Accent top line */}
-      <div className="h-px" style={{ background: `linear-gradient(90deg, ${node.accent}, transparent 70%)` }} />
-
-      <div className="p-4">
-        {/* Header */}
-        <div className="flex flex-wrap items-center gap-2 mb-1">
-          <span className="font-bold text-base" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-display)' }}>
-            {node.company}
-          </span>
-          <span className="font-mono text-[9px]" style={{ color: 'var(--text-muted)' }}>{node.subtitle}</span>
-          <span
-            className="font-mono text-[8px] px-1.5 py-0.5 rounded"
-            style={{
-              background: `rgba(${node.accentRgb},0.08)`,
-              border: `1px solid rgba(${node.accentRgb},0.2)`,
-              color: node.accent,
-            }}
-          >
-            {node.highlight}
-          </span>
-        </div>
-
-        {/* Role */}
-        <div className="font-mono text-[11px] font-medium mb-1" style={{ color: node.accent }}>
-          {node.role}
-        </div>
-        <div className="font-mono text-[9px] mb-3" style={{ color: 'var(--text-muted)' }}>{node.note}</div>
-
-        {/* Description */}
-        <p className="text-[11px] leading-relaxed mb-3" style={{ color: 'var(--text-secondary)' }}>{node.desc}</p>
-
-        {/* Visual panel */}
-        {node.visual === 'kiland' && <KiLandVisual accent={node.accent} accentRgb={node.accentRgb} />}
-        {node.visual === 'pipeline' && <PipelineVisual accent={node.accent} accentRgb={node.accentRgb} />}
-        {node.visual === 'metrics' && <MetricsVisual accent={node.accent} accentRgb={node.accentRgb} />}
-
-        {/* Tags */}
-        <div className="flex flex-wrap gap-1 mt-3">
-          {node.tags.map(t => (
-            <span key={t} className="font-mono text-[8px] px-1.5 py-0.5 rounded" style={{ background: 'var(--surface-high)', color: 'var(--text-secondary)' }}>
-              {t}
-            </span>
-          ))}
-        </div>
-
-        {/* Project link */}
-        {node.project && (
-          <div className="mt-3 pt-3" style={{ borderTop: '1px solid var(--border-ghost)' }}>
-            <a
-              href={node.project.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-mono text-[10px] font-medium"
-              style={{ color: node.accent }}
-              onMouseEnter={e => { e.currentTarget.style.opacity = '0.7' }}
-              onMouseLeave={e => { e.currentTarget.style.opacity = '1' }}
-            >
-              {node.project.name} ↗
-            </a>
-          </div>
-        )}
-
-        {/* Award */}
-        {'award' in node && node.award && (
-          <div
-            className="flex items-start gap-2 p-2.5 rounded mt-3"
-            style={{ background: 'rgba(245,197,24,0.05)', border: '1px solid rgba(245,197,24,0.15)' }}
-          >
-            <span style={{ color: 'var(--accent-yellow)', fontSize: '12px' }}>★</span>
-            <div>
-              <div className="font-mono text-[10px] font-medium" style={{ color: 'var(--accent-yellow)' }}>
-                {node.award.title}
-              </div>
-              <div className="font-mono text-[8px] mt-0.5" style={{ color: 'var(--text-muted)' }}>{node.award.note}</div>
+      <div style={{ height: '2px', background: `linear-gradient(90deg, ${acc}, transparent 70%)` }} />
+      <div style={{ padding: '14px 16px' }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '10px' }}>
+          <div style={{ flex: 1 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '4px' }}>
+              <span style={{ fontWeight: 700, fontSize: '15px', color: 'var(--text-primary)' }}>{node.company}</span>
+              <span style={{ ...mono, fontSize: '9px', color: 'var(--text-dim)' }}>{node.subtitle[lang]}</span>
+              <span style={{
+                ...mono, fontSize: '8px', padding: '2px 7px', borderRadius: '4px',
+                background: `rgba(${rgb},0.1)`, border: `1px solid rgba(${rgb},0.25)`, color: acc,
+              }}>
+                {node.badge[lang]}
+              </span>
             </div>
+            <div style={{ ...mono, fontSize: '11px', color: acc, marginBottom: '2px' }}>{node.role[lang]}</div>
+            <div style={{ ...mono, fontSize: '10px', color: 'var(--text-dim)' }}>{node.period[lang]}</div>
+          </div>
+          <div style={{ ...mono, fontSize: '16px', color: 'var(--text-dim)', transition: 'transform 0.2s', transform: isOpen ? 'rotate(180deg)' : 'none' }}>⌄</div>
+        </div>
+
+        {isOpen && (
+          <div style={{ marginTop: '14px', borderTop: '1px solid var(--border)', paddingTop: '14px' }}>
+            <p style={{ fontSize: '12px', color: 'var(--text-secondary)', lineHeight: 1.7, marginBottom: '14px' }}>
+              {node.desc[lang]}
+            </p>
+
+            {node.visual && node.visualLabel && (
+              <div style={{ marginBottom: '14px' }}>
+                <div style={{ ...mono, fontSize: '9px', color: acc, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '8px' }}>
+                  {node.visualLabel[lang]}
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  {node.visual.map(v => (
+                    <div key={v[lang].label} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '7px 10px', borderRadius: '6px', background: `rgba(${rgb},0.05)`, border: `1px solid rgba(${rgb},0.12)` }}>
+                      <span style={{ ...mono, fontSize: '12px', color: acc }}>{v.icon}</span>
+                      <div>
+                        <div style={{ ...mono, fontSize: '10px', color: 'var(--text-primary)', fontWeight: 600 }}>{v[lang].label}</div>
+                        <div style={{ ...mono, fontSize: '9px', color: 'var(--text-dim)' }}>{v[lang].sub}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {node.metrics && node.metricsLabel && (
+              <div style={{ marginBottom: '14px' }}>
+                <div style={{ ...mono, fontSize: '9px', color: acc, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '8px' }}>
+                  {node.metricsLabel[lang]}
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: '6px' }}>
+                  {node.metrics.map((m, i) => (
+                    <div key={i} style={{ padding: '8px 10px', borderRadius: '6px', background: 'var(--surface-3)', border: '1px solid var(--border)' }}>
+                      <div style={{ ...mono, fontSize: '14px', fontWeight: 700, color: acc }}>{m[lang].value}</div>
+                      <div style={{ ...mono, fontSize: '9px', color: 'var(--text-dim)' }}>{m[lang].label}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {node.award && (
+              <div style={{ display: 'flex', gap: '10px', padding: '10px 12px', borderRadius: '6px', marginBottom: '12px', background: 'rgba(var(--warn-rgb),0.05)', border: '1px solid rgba(var(--warn-rgb),0.15)' }}>
+                <span style={{ color: 'var(--warn)', fontSize: '14px' }}>★</span>
+                <div>
+                  <div style={{ ...mono, fontSize: '10px', fontWeight: 600, color: 'var(--warn)' }}>{node.award[lang].title}</div>
+                  <div style={{ ...mono, fontSize: '9px', color: 'var(--text-dim)', marginTop: '2px' }}>{node.award[lang].note}</div>
+                </div>
+              </div>
+            )}
+
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', marginBottom: '10px' }}>
+              {node.tags.map(tag => (
+                <span key={tag} style={{ ...mono, fontSize: '9px', padding: '3px 8px', borderRadius: '4px', background: 'var(--surface-3)', border: '1px solid var(--border)', color: 'var(--text-dim)' }}>
+                  {tag}
+                </span>
+              ))}
+            </div>
+
+            {node.link && (
+              <a
+                href={node.link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={e => e.stopPropagation()}
+                style={{ ...mono, fontSize: '10px', color: acc }}
+                onMouseEnter={e => { e.currentTarget.style.opacity = '0.7' }}
+                onMouseLeave={e => { e.currentTarget.style.opacity = '1' }}
+              >
+                {node.link.label} ↗
+              </a>
+            )}
           </div>
         )}
       </div>
-    </motion.div>
+    </div>
   )
 }
-
-/* ── Main component ───────────────────────────────────────────── */
 
 export default function JourneySection() {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ['start 80%', 'end 20%'],
-  })
-  const lineHeight = useTransform(scrollYProgress, [0, 1], ['0%', '100%'])
+  const { lang } = useLang()
+  const [openId, setOpenId] = useState<string | null>('kiland')
+
+  const T = {
+    en: { eyebrow: '// Professional Journey', title: '7 Years in QA', desc: 'From day-one manual tester to AI-powered automation — building quality across three enterprise platforms.' },
+    vi: { eyebrow: '// Hành Trình Nghề Nghiệp', title: '7 Năm Trong Nghề', desc: 'Từ QC Engineer ngày đầu đến tự động hóa AI — xây dựng chất lượng trên ba nền tảng enterprise.' },
+  }[lang]
+
+  const mono: React.CSSProperties = { fontFamily: 'var(--font-mono), JetBrains Mono, monospace' }
 
   return (
-    <section id="journey" data-testid="journey-section" className="py-20 px-4 max-w-5xl mx-auto w-full">
-
-      {/* Section header */}
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.5 }}
-        className="mb-16"
-      >
-        <div className="font-mono text-[10px] uppercase tracking-widest mb-2" style={{ color: 'var(--accent-cyan)' }}>
-          // PROFESSIONAL JOURNEY
+    <div data-testid="journey-section" style={{ padding: '48px 0' }}>
+      <div style={{ marginBottom: '28px' }}>
+        <div style={{ ...mono, fontSize: '10px', color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '8px' }}>
+          {T.eyebrow}
         </div>
-        <h2
-          data-testid="journey-heading"
-          className="text-3xl font-bold mb-3"
-          style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-display)' }}
-        >
-          7 Năm Trong Nghề
-        </h2>
-        <p className="text-sm max-w-lg" style={{ color: 'var(--text-secondary)' }}>
-          Từ QC Engineer ngày đầu đến AI-powered automation — hành trình xây dựng chất lượng trên ba nền tảng enterprise.
-        </p>
-      </motion.div>
+        <h2 style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '8px' }}>{T.title}</h2>
+        <p style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.6, maxWidth: '520px' }}>{T.desc}</p>
+      </div>
 
-      {/* Timeline */}
-      <div ref={containerRef} className="relative">
-
-        {/* Background line — desktop */}
-        <div
-          className="absolute left-1/2 top-0 bottom-0 w-px -translate-x-1/2 hidden lg:block"
-          style={{ background: 'rgba(255,255,255,0.05)' }}
-        />
-        {/* Background line — mobile */}
-        <div
-          className="absolute left-[5px] top-0 bottom-0 w-px lg:hidden"
-          style={{ background: 'rgba(255,255,255,0.05)' }}
-        />
-
-        {/* Scroll-fill line — desktop */}
-        <div className="absolute left-1/2 top-0 bottom-0 w-px -translate-x-1/2 hidden lg:block overflow-hidden">
-          <motion.div
-            className="w-full origin-top"
-            style={{
-              height: lineHeight,
-              background: 'linear-gradient(180deg, var(--accent-purple), var(--accent-cyan) 40%, var(--accent-blue))',
-              opacity: 0.6,
-            }}
-          />
-        </div>
-        {/* Scroll-fill line — mobile */}
-        <div className="absolute left-[5px] top-0 bottom-0 w-px overflow-hidden lg:hidden">
-          <motion.div
-            className="w-full origin-top"
-            style={{
-              height: lineHeight,
-              background: 'linear-gradient(180deg, var(--accent-purple), var(--accent-cyan) 40%, var(--accent-blue))',
-              opacity: 0.6,
-            }}
-          />
-        </div>
-
-        {/* Nodes */}
-        <div className="flex flex-col gap-14">
-          {nodes.map((node, i) => (
-            <TimelineNode key={node.id} node={node} index={i} />
+      <div style={{ position: 'relative', paddingLeft: '24px' }}>
+        <div style={{
+          position: 'absolute', left: '5px', top: 0, bottom: 0, width: '1px',
+          background: 'linear-gradient(180deg, var(--accent2), var(--accent) 40%, var(--accent3))',
+          opacity: 0.3,
+        }} />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          {NODES.map(node => (
+            <div key={node.id} style={{ position: 'relative' }}>
+              <div style={{
+                position: 'absolute', left: '-20px', top: '20px',
+                width: '10px', height: '10px', borderRadius: '50%',
+                border: `2px solid var(--${node.accentVar})`,
+                background: openId === node.id ? `var(--${node.accentVar})` : 'var(--surface-1)',
+                boxShadow: openId === node.id ? `0 0 10px rgba(var(--${node.accentVar}-rgb),0.6)` : 'none',
+                transition: 'all 0.3s',
+                zIndex: 1,
+              }} />
+              <NodeCard
+                node={node}
+                isOpen={openId === node.id}
+                onToggle={() => setOpenId(openId === node.id ? null : node.id)}
+              />
+            </div>
           ))}
         </div>
-
       </div>
-    </section>
+    </div>
   )
 }

@@ -37,7 +37,14 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${spaceGrotesk.variable} ${jetbrainsMono.variable}`}>
-      <body className="min-h-screen"><SessionProvider>{children}</SessionProvider></body>
+      <body className="min-h-screen" data-theme="editorial" suppressHydrationWarning>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){var t=localStorage.getItem('pf-theme');if(t==='sovereign'||t==='verdant'||t==='editorial')document.body.setAttribute('data-theme',t);})()`
+          }}
+        />
+        <SessionProvider>{children}</SessionProvider>
+      </body>
     </html>
   )
 }

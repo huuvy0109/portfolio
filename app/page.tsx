@@ -1,128 +1,141 @@
 'use client'
 
+import { useState, useEffect } from 'react'
+import { LanguageProvider, useLang } from '@/lib/context/LanguageContext'
+import Sidebar from '@/components/sidebar/Sidebar'
 import HeroSection from '@/components/hero/HeroSection'
-import PipelineBoard from '@/components/pipeline-board/PipelineBoard'
-import TerminalUI from '@/components/terminal/TerminalUI'
-import QualityGate from '@/components/quality-gate/QualityGate'
-import SanitizerVisualizer from '@/components/sanitizer/SanitizerVisualizer'
-import HistoryLog from '@/components/history/HistoryLog'
-import TestHistorySection from '@/components/history/TestHistorySection'
-import PipelineErrorBoundary from '@/components/pipeline-board/PipelineErrorBoundary'
+import PipelineSection from '@/components/pipeline-board/PipelineSection'
 import JourneySection from '@/components/journey/JourneySection'
+import SkillsSection from '@/components/skills/SkillsSection'
+import TestHistorySection from '@/components/history/TestHistorySection'
+import SanitizerVisualizer from '@/components/sanitizer/SanitizerVisualizer'
 import { usePipelineStore } from '@/lib/store/pipelineStore'
 
-function PipelineSection() {
-  const { trigger, phase, runMode } = usePipelineStore()
+const SECTION_IDS = ['hero', 'pipeline', 'journey', 'skills', 'history', 'sanitizer'] as const
+type SectionId = typeof SECTION_IDS[number]
 
-  return (
-    <section id="pipeline" className="py-20 px-4 max-w-7xl mx-auto w-full">
-      {/* Section header */}
-      <div className="flex items-end justify-between mb-8 gap-4 flex-wrap">
-        <div>
-          <div className="font-mono text-[10px] text-[var(--accent-green)] uppercase tracking-widest mb-2">
-            // META-PIPELINE
-          </div>
-          <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-1">
-            Enterprise QA Pipeline
-          </h2>
-          <p className="text-sm text-[var(--text-secondary)] max-w-lg">
-            This page is the Subject Under Test. Watch a real-time simulation of BA → QC → CI
-            with intentional failures and human override.
-          </p>
-        </div>
+const THEMES = ['editorial', 'sovereign', 'verdant'] as const
+type Theme = typeof THEMES[number]
 
-        {/* Legend */}
-        <div
-          className="flex flex-col gap-1.5 p-3 rounded-lg shrink-0"
-          style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)' }}
-        >
-          <div className="font-mono text-[9px] text-[var(--text-muted)] uppercase tracking-widest mb-1">
-            How to read
-          </div>
-          {[
-            { color: 'var(--accent-green)',  label: 'Active / Pass' },
-            { color: 'var(--accent-yellow)', label: '⚠ Flaky (retry > 1)' },
-            { color: 'var(--accent-red)',    label: '⛔ Blocked (fail > 0)' },
-          ].map(item => (
-            <div key={item.label} className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full shrink-0" style={{ background: item.color }} />
-              <span className="font-mono text-[10px] text-[var(--text-secondary)]">{item.label}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Board + Terminal — wrapped in error boundary */}
-      <PipelineErrorBoundary>
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
-          <PipelineBoard />
-          <TerminalUI />
-        </div>
-      </PipelineErrorBoundary>
-
-      {/* Quality Gate */}
-      <QualityGate />
-
-      {/* Re-trigger */}
-      {phase !== 'idle' && (
-        <div className="flex justify-center mt-6">
-          <button
-            onClick={() => { usePipelineStore.getState().reset(); setTimeout(() => trigger(), 100) }}
-            className="font-mono text-xs px-4 py-2 rounded-lg transition-all duration-200"
-            style={{ border: '1px solid var(--border-dim)', color: 'var(--text-muted)' }}
-            onMouseEnter={e => { e.currentTarget.style.color = 'var(--accent-green)'; e.currentTarget.style.borderColor = 'rgba(0,255,157,0.3)' }}
-            onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.borderColor = 'var(--border-dim)' }}
-          >
-            ↺ Simulate Again {runMode === 'v2-fixed' ? '(v2 — AI Fixed)' : ''}
-          </button>
-        </div>
-      )}
-    </section>
-  )
+function scrollToSection(id: string) {
+  const el = document.getElementById(id)
+  if (el) {
+    const top = el.getBoundingClientRect().top + window.scrollY - 24
+    window.scrollTo({ top, behavior: 'smooth' })
+  }
 }
 
+function AppShell() {
+  const { lang } = useLang()
+  const { trigger, phase } = usePipelineStore()
+  const [active, setActive] = useState<SectionId>('hero')
+  const [theme, setThemeState] = useState<Theme>('editorial')
 
-function Footer() {
+  // Init theme from localStorage
+  useEffect(() => {
+    const stored = localStorage.getItem('pf-theme') as Theme | null
+    if (stored && THEMES.includes(stored)) {
+      setThemeState(stored)
+      document.body.setAttribute('data-theme', stored)
+    } else {
+      document.body.setAttribute('data-theme', 'editorial')
+    }
+  }, [])
+
+  const setTheme = (t: Theme) => {
+    setThemeState(t)
+    document.body.setAttribute('data-theme', t)
+    localStorage.setItem('pf-theme', t)
+  }
+
+  // Active section tracking
+  useEffect(() => {
+    const obs = new IntersectionObserver(
+      entries => {
+        entries.forEach(e => {
+          if (e.isIntersecting) setActive(e.target.id as SectionId)
+        })
+      },
+      { rootMargin: '-30% 0px -60% 0px' }
+    )
+    SECTION_IDS.forEach(id => {
+      const el = document.getElementById(id)
+      if (el) obs.observe(el)
+    })
+    return () => obs.disconnect()
+  }, [])
+
+  const handleRunPipeline = () => {
+    if (phase === 'idle') trigger()
+    scrollToSection('pipeline')
+  }
+
+  const FT = {
+    en: { line1: 'Vy Quang Huu · QC Engineer · huuvy0109@gmail.com', line2: 'Built with Next.js · TypeScript · Playwright ·', sut: 'this page is the SUT' },
+    vi: { line1: 'Vỹ Quang Hữu · Kỹ Sư QC · huuvy0109@gmail.com', line2: 'Xây dựng với Next.js · TypeScript · Playwright ·', sut: 'trang này là SUT' },
+  }[lang]
+
   return (
-    <footer
-      data-testid="footer"
-      className="py-8 px-4 text-center border-t"
-      style={{ borderColor: 'var(--border-subtle)' }}
-    >
-      <p className="font-mono text-xs text-[var(--text-muted)]">
-        Vy Quang Huu · QC Engineer · huuvy0109@gmail.com ·{' '}
-        <a
-          href="https://linkedin.com/in/huuvy0109"
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ color: 'var(--accent-blue)', textDecoration: 'none' }}
-          onMouseEnter={e => { e.currentTarget.style.textDecoration = 'underline' }}
-          onMouseLeave={e => { e.currentTarget.style.textDecoration = 'none' }}
+    <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg)' }}>
+      <Sidebar
+        active={active}
+        pipelinePhase={phase}
+        theme={theme}
+        setTheme={setTheme}
+        onNavClick={scrollToSection}
+      />
+
+      <main style={{ marginLeft: 'var(--sidebar-w)', flex: 1, padding: '0 52px 0 48px', minWidth: 0 }}>
+        <section id="hero" style={{ borderBottom: '1px solid var(--border)' }}>
+          <HeroSection onRunPipeline={handleRunPipeline} />
+        </section>
+
+        <section id="pipeline" style={{ borderBottom: '1px solid var(--border)' }}>
+          <PipelineSection />
+        </section>
+
+        <section id="journey" style={{ borderBottom: '1px solid var(--border)' }}>
+          <JourneySection />
+        </section>
+
+        <section id="skills" style={{ borderBottom: '1px solid var(--border)' }}>
+          <SkillsSection />
+        </section>
+
+        <section id="history" style={{ borderBottom: '1px solid var(--border)' }}>
+          <TestHistorySection />
+        </section>
+
+        <section id="sanitizer" style={{ borderBottom: '1px solid var(--border)' }}>
+          <SanitizerVisualizer />
+        </section>
+
+        <footer
+          data-testid="footer"
+          style={{
+            borderTop: '1px solid var(--border)',
+            padding: '32px 0 40px',
+            fontFamily: 'var(--font-mono), JetBrains Mono, monospace',
+            fontSize: '10px',
+            color: 'var(--text-dim)',
+            textAlign: 'center',
+          }}
         >
-          LinkedIn ↗
-        </a>
-      </p>
-      <p className="font-mono text-[10px] text-[var(--text-muted)] mt-1 opacity-50">
-        Built with Next.js · TypeScript · Tailwind · Playwright · <span style={{ color: 'var(--accent-green)' }}>this page is the SUT</span>
-      </p>
-    </footer>
+          <p>{FT.line1}</p>
+          <p style={{ marginTop: '6px', opacity: 0.5 }}>
+            {FT.line2}{' '}
+            <span style={{ color: 'var(--accent)' }}>{FT.sut}</span>
+          </p>
+        </footer>
+      </main>
+    </div>
   )
 }
 
 export default function Home() {
   return (
-    <main style={{ background: 'var(--bg-primary)', minHeight: '100vh' }}>
-      <HeroSection />
-
-      <div className="flex flex-col items-center">
-        <PipelineSection />
-        <HistoryLog />
-        <TestHistorySection />
-        <SanitizerVisualizer />
-        <JourneySection />
-      </div>
-
-      <Footer />
-    </main>
+    <LanguageProvider>
+      <AppShell />
+    </LanguageProvider>
   )
 }

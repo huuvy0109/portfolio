@@ -32,27 +32,34 @@ if (fs.existsSync(jsonReportPath)) {
   const results = []
   let totalDuration = 0
 
-  for (const suite of raw.suites || []) {
-    for (const spec of suite.specs || []) {
-      for (const test of spec.tests || []) {
-        const allResults = test.results || []
-        const last = allResults[allResults.length - 1]
-        const status = last?.status === 'passed' ? 'passed'
-          : last?.status === 'skipped' ? 'skipped'
-          : allResults.length > 1 ? 'flaky'
-          : 'failed'
-        totalDuration += last?.duration || 0
-        results.push({
-          title: test.title,
-          file: spec.file || suite.title,
-          status,
-          durationMs: last?.duration || 0,
-          errorMessage: last?.error?.message || null,
-          retryCount: allResults.length - 1,
-        })
+  function collectSpecs(suites, parentFile) {
+    for (const suite of suites || []) {
+      const suiteFile = parentFile || suite.title || ''
+      for (const spec of suite.specs || []) {
+        const file = spec.file || suiteFile
+        for (const test of spec.tests || []) {
+          const allResults = test.results || []
+          const last = allResults[allResults.length - 1]
+          const status = last?.status === 'passed' ? 'passed'
+            : last?.status === 'skipped' ? 'skipped'
+            : allResults.length > 1 ? 'flaky'
+            : 'failed'
+          totalDuration += last?.duration || 0
+          results.push({
+            title: test.title || spec.title || '(untitled)',
+            file: file || '(unknown)',
+            status,
+            durationMs: last?.duration || 0,
+            errorMessage: last?.error?.message || null,
+            retryCount: allResults.length - 1,
+          })
+        }
       }
+      if (suite.suites?.length) collectSpecs(suite.suites, suiteFile)
     }
   }
+
+  collectSpecs(raw.suites)
 
   const passed  = results.filter(r => r.status === 'passed').length
   const failed  = results.filter(r => r.status === 'failed').length

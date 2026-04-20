@@ -17,6 +17,8 @@ jobs:
     name: Run Playwright Tests
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
       - name: Checkout
@@ -34,12 +36,16 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
 
+      - name: Seed test users
+        run: node scripts/seed-test-users.mjs
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
       - name: Build
         run: npm run build
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          AUTH_SECRET: ${{ secrets.AUTH_SECRET || secrets.NEXTAUTH_SECRET }}
-          AUTH_URL: ${{ secrets.AUTH_URL || secrets.NEXTAUTH_URL }}
+          AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
           NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL }}
           BLOB_READ_WRITE_TOKEN: ${{ secrets.BLOB_READ_WRITE_TOKEN }}
@@ -49,8 +55,7 @@ jobs:
         env:
           CI: true
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          AUTH_SECRET: ${{ secrets.AUTH_SECRET || secrets.NEXTAUTH_SECRET }}
-          AUTH_URL: ${{ secrets.AUTH_URL || secrets.NEXTAUTH_URL }}
+          AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
           NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL }}
           BLOB_READ_WRITE_TOKEN: ${{ secrets.BLOB_READ_WRITE_TOKEN }}
@@ -61,7 +66,7 @@ jobs:
         env:
           PORTFOLIO_API_KEY: ${{ secrets.PORTFOLIO_API_KEY }}
           PORTFOLIO_URL: ${{ secrets.PORTFOLIO_URL }}
-          RUN_ENV: ${{ github.event.inputs.env || (github.event_name == 'workflow_dispatch' && 'ci') || 'ci' }}
+          RUN_ENV: ${{ github.event.inputs.env || 'ci' }}
 
       - name: Upload Playwright report artifact
         uses: actions/upload-artifact@v4

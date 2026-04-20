@@ -1,6 +1,12 @@
 import { defineConfig, devices } from '@playwright/test'
 import path from 'path'
 
+if (process.env.CI) {
+  if (!process.env.DATABASE_URL)   console.error('❌ DATABASE_URL is required for Playwright tests in CI')
+  if (!process.env.NEXTAUTH_SECRET && !process.env.AUTH_SECRET)
+    console.error('❌ NEXTAUTH_SECRET (or AUTH_SECRET) is required for Playwright tests in CI')
+}
+
 const OWNER_FILE = path.join(__dirname, 'tests/e2e/.auth/owner.json')
 const MEMBER_FILE = path.join(__dirname, 'tests/e2e/.auth/member.json')
 
@@ -89,6 +95,6 @@ export default defineConfig({
     command: 'npm run dev',
     url: 'http://localhost:3000',
     reuseExistingServer: true,
-    timeout: 30000,
+    timeout: 60000,
   },
 })

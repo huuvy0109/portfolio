@@ -14,7 +14,7 @@ await sql`
   VALUES (gen_random_uuid(), 'huuvy', ${ownerHash}, 'owner')
   ON CONFLICT (username) DO UPDATE SET password_hash = ${ownerHash}, role = 'owner'
 `
-console.log('✓ Owner: huuvy / admin123')
+console.log('✓ Owner seeded: huuvy')
 
 const memberHash = await bcrypt.hash('member123', 12)
 await sql`
@@ -22,4 +22,4 @@ await sql`
   VALUES (gen_random_uuid(), 'testmember', ${memberHash}, 'member')
   ON CONFLICT (username) DO UPDATE SET password_hash = ${memberHash}, role = 'member'
 `
-console.log('✓ Member: testmember / member123')
+console.log('✓ Member seeded: testmember')

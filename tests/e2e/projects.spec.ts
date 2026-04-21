@@ -44,23 +44,45 @@ test.describe('Projects — owner', () => {
     await expect(page.getByTestId('input-project-slug')).toHaveValue('project--123')
   })
 
-  test('should create a new project and show in list', async ({ page }) => {
+  test('should create a new project and show in list', async ({ page, request }) => {
     const slug = `e2e-test-${Date.now()}`
-    await page.getByTestId('btn-new-project').click()
-    await page.getByTestId('input-project-name').fill('E2E Test Project')
-    await page.getByTestId('input-project-slug').fill(slug)
-    await page.getByTestId('btn-create-project').click()
+    let createdId: string | null = null
+
+    const [response] = await Promise.all([
+      page.waitForResponse(r => r.url().includes('/api/projects') && r.request().method() === 'POST'),
+      (async () => {
+        await page.getByTestId('btn-new-project').click()
+        await page.getByTestId('input-project-name').fill('E2E Test Project')
+        await page.getByTestId('input-project-slug').fill(slug)
+        await page.getByTestId('btn-create-project').click()
+      })(),
+    ])
+
+    const body = await response.json()
+    createdId = body.id ?? null
+
     await expect(page.getByTestId(`project-row-${slug}`)).toBeVisible({ timeout: 8000 })
+
+    if (createdId) await request.delete(`/api/projects/${createdId}`)
   })
 
-  test('should show error on duplicate slug', async ({ page }) => {
+  test('should show error on duplicate slug', async ({ page, request }) => {
     const dupSlug = `dup-slug-${Date.now()}`
-    // First: create project successfully
-    await page.getByTestId('btn-new-project').click()
-    await page.getByTestId('input-project-name').fill('Duplicate')
-    await page.getByTestId('input-project-slug').fill(dupSlug)
-    await page.getByTestId('btn-create-project').click()
-    // Wait for first project to appear before attempting duplicate
+    let createdId: string | null = null
+
+    const [response] = await Promise.all([
+      page.waitForResponse(r => r.url().includes('/api/projects') && r.request().method() === 'POST'),
+      (async () => {
+        await page.getByTestId('btn-new-project').click()
+        await page.getByTestId('input-project-name').fill('Duplicate')
+        await page.getByTestId('input-project-slug').fill(dupSlug)
+        await page.getByTestId('btn-create-project').click()
+      })(),
+    ])
+
+    const body = await response.json()
+    createdId = body.id ?? null
+
     await expect(page.getByTestId(`project-row-${dupSlug}`)).toBeVisible({ timeout: 8000 })
 
     // Second: try same slug → expect error
@@ -69,6 +91,8 @@ test.describe('Projects — owner', () => {
     await page.getByTestId('input-project-slug').fill(dupSlug)
     await page.getByTestId('btn-create-project').click()
     await expect(page.getByTestId('project-form-error')).toBeVisible({ timeout: 5000 })
+
+    if (createdId) await request.delete(`/api/projects/${createdId}`)
   })
 
   test('should not submit create form with empty name', async ({ page }) => {

@@ -9,12 +9,12 @@
  */
 import { test, expect } from '@playwright/test'
 
-test.describe('Pipeline Board', () => {
+test.describe('Bảng Pipeline', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/')
   })
 
-  test('pipeline board renders 4 columns', async ({ page }) => {
+  test('[TC-PIPE-001] bảng pipeline hiển thị 4 cột', async ({ page }) => {
     // Scroll to pipeline section and trigger from there
     await page.locator('#pipeline').scrollIntoViewIfNeeded()
     await page.getByTestId('btn-run-pipeline-section').click()
@@ -31,7 +31,7 @@ test.describe('Pipeline Board', () => {
    * Test này sẽ FLAKY: locator không tồn tại trong DOM → timeout → FAIL.
    * Đây là hành vi có chủ đích để demo Quality Gate workflow.
    */
-  test('card moves to BA Analyzing column on trigger [AI Agent Error — Simulated]', async ({ page }) => {
+  test('[TC-PIPE-002] thẻ di chuyển sang cột BA Analyzing khi kích hoạt [Mô phỏng lỗi AI Agent]', async ({ page }) => {
     // Skip unless explicitly set to 'true' string
     test.skip(process.env.RUN_SIMULATED !== 'true', 'Skipping simulated error test (demo only)');
 

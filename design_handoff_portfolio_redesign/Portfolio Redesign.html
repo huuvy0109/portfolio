@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Huu Vy — QC Engineer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: 'Space Grotesk', system-ui, sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+button { font-family: inherit; }
+a { text-decoration: none; }
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+::selection { background: rgba(var(--accent-rgb), 0.2); }
+
+/* ── Themes ── */
+:root { --sidebar-w: 220px; }
+
+[data-theme="editorial"] {
+  --bg: #0f0e0d; --surface-1: #141210; --surface-2: #1c1916; --surface-3: #252119;
+  --border: rgba(255,255,255,0.07);
+  --text-primary: #ede8df; --text-secondary: #a89f92; --text-dim: #6b635a;
+  --accent: oklch(72% 0.14 52); --accent-rgb: 210,150,60;
+  --accent2: oklch(68% 0.15 320); --accent2-rgb: 190,100,210;
+  --accent3: oklch(72% 0.14 155); --accent3-rgb: 80,190,130;
+  --warn: oklch(78% 0.14 75); --warn-rgb: 220,185,50;
+  --danger: oklch(65% 0.18 20); --danger-rgb: 220,80,70;
+}
+[data-theme="sovereign"] {
+  --bg: #0b0d12; --surface-1: #0f1218; --surface-2: #161a22; --surface-3: #1e2430;
+  --border: rgba(255,255,255,0.06);
+  --text-primary: #d8e8f2; --text-secondary: #7a9ab0; --text-dim: #4a6070;
+  --accent: #00c8e0; --accent-rgb: 0,200,224;
+  --accent2: oklch(70% 0.15 280); --accent2-rgb: 130,100,240;
+  --accent3: oklch(72% 0.14 155); --accent3-rgb: 60,200,140;
+  --warn: #f5c518; --warn-rgb: 245,197,24;
+  --danger: #ff4d6a; --danger-rgb: 255,77,106;
+}
+[data-theme="verdant"] {
+  --bg: #0b100d; --surface-1: #0f1510; --surface-2: #161e17; --surface-3: #1d261e;
+  --border: rgba(255,255,255,0.06);
+  --text-primary: #ddeedd; --text-secondary: #82a88a; --text-dim: #4e6e52;
+  --accent: oklch(72% 0.17 150); --accent-rgb: 60,200,120;
+  --accent2: oklch(68% 0.13 200); --accent2-rgb: 50,180,190;
+  --accent3: oklch(70% 0.15 260); --accent3-rgb: 100,140,230;
+  --warn: oklch(78% 0.15 75); --warn-rgb: 215,185,55;
+  --danger: oklch(65% 0.18 20); --danger-rgb: 220,80,70;
+}
+
+/* ── Layout ── */
+body { background: var(--bg); color: var(--text-primary); }
+#root { display: flex; min-height: 100vh; }
+
+.sidebar {
+  width: var(--sidebar-w);
+  min-height: 100vh;
+  position: fixed; top: 0; left: 0;
+  background: var(--surface-1);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  z-index: 100;
+  overflow-y: auto;
+}
+
+.main-content {
+  margin-left: var(--sidebar-w);
+  flex: 1;
+  padding: 0 52px 0 48px;
+  min-width: 0;
+}
+
+/* ── Animations ── */
+@keyframes pulseDot { 0%,100%{opacity:.5;} 50%{opacity:1;} }
+@keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0;} }
+
+/* Film grain */
+body::after {
+  content:''; position:fixed; inset:0; z-index:9999;
+  pointer-events:none; opacity:.025;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size:160px;
+}
+
+/* Tweaks panel */
+.tweaks-panel {
+  position:fixed; bottom:20px; right:20px; width:230px;
+  background:var(--surface-2); border:1px solid var(--border);
+  border-radius:10px; padding:16px; z-index:1000;
+  display:none; box-shadow:0 20px 40px rgba(0,0,0,0.5);
+}
+.tweaks-panel.open { display:block; }
+</style>
+</head>
+<body data-theme="editorial">
+<div id="root"></div>
+
+<script type="text/babel" src="components/pipeline.jsx"></script>
+<script type="text/babel" src="components/journey.jsx"></script>
+<script type="text/babel" src="components/sections.jsx"></script>
+
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+const NAV = {
+  en: [
+    { id:'hero',      label:'Overview'    },
+    { id:'pipeline',  label:'Pipeline'    },
+    { id:'journey',   label:'Journey'     },
+    { id:'skills',    label:'Skills'      },
+    { id:'history',   label:'Test History'},
+    { id:'sanitizer', label:'Sanitizer'   },
+  ],
+  vi: [
+    { id:'hero',      label:'Tổng Quan'    },
+    { id:'pipeline',  label:'Pipeline'     },
+    { id:'journey',   label:'Hành Trình'   },
+    { id:'skills',    label:'Kỹ Năng'      },
+    { id:'history',   label:'Lịch Sử Test' },
+    { id:'sanitizer', label:'Sanitizer'    },
+  ],
+};
+
+const STATS = {
+  en: [
+    { value:'7+',   label:'Yrs Experience' },
+    { value:'+30%', label:'Test Coverage'  },
+    { value:'−40%', label:'Regression'     },
+    { value:'95%+', label:'On-time'        },
+  ],
+  vi: [
+    { value:'7+',   label:'Năm Kinh Nghiệm' },
+    { value:'+30%', label:'Độ Phủ Test'      },
+    { value:'−40%', label:'Regression'       },
+    { value:'95%+', label:'Đúng Hạn'         },
+  ],
+};
+
+const TAGS = ['Playwright','TypeScript','AI Multi-Agent','Cursor AI','GitHub Actions','Postman','Jira'];
+
+const HERO_T = {
+  en: {
+    role: 'QC Engineer · AI Automation',
+    desc: 'Building intelligent QA systems that model real-world failures, enforce quality gates, and leave an auditable trail of every human decision.',
+    cta1: '▶ Run Pipeline',
+    cta2: 'View Journey →',
+  },
+  vi: {
+    role: 'Kỹ Sư QC · Tự Động Hóa AI',
+    desc: 'Xây dựng hệ thống QA thông minh mô phỏng lỗi thực tế, kiểm soát chất lượng bằng quality gate, và ghi lại toàn bộ quyết định của con người.',
+    cta1: '▶ Chạy Pipeline',
+    cta2: 'Xem Hành Trình →',
+  },
+};
+
+const FOOTER_T = {
+  en: { line1:'Vy Quang Huu · QC Engineer · huuvy0109@gmail.com', line2:'Built with Next.js · TypeScript · Playwright ·', sut:'this page is the SUT' },
+  vi: { line1:'Vỹ Quang Hữu · Kỹ Sư QC · huuvy0109@gmail.com', line2:'Xây dựng với Next.js · TypeScript · Playwright ·', sut:'trang này là SUT' },
+};
+
+const SIDEBAR_T = {
+  en: { online:'Online', running:'Running', cvEn:'↓ CV (EN)', cvVi:'↓ CV (VI)' },
+  vi: { online:'Trực Tuyến', running:'Đang Chạy', cvEn:'↓ CV (EN)', cvVi:'↓ CV (VI)' },
+};
+
+// ── Sidebar ───────────────────────────────────────────────────
+function Sidebar({ active, pipelinePhase, lang, setLang }) {
+  const isRunning = !['idle','completed','rejected'].includes(pipelinePhase);
+  const T = SIDEBAR_T[lang];
+  const navItems = NAV[lang];
+
+  const scrollTo = id => {
+    const el = document.getElementById(id);
+    if (el) { const top = el.getBoundingClientRect().top + window.scrollY - 24; window.scrollTo({ top, behavior:'smooth' }); }
+  };
+
+  return (
+    <nav className="sidebar" style={{ padding:'28px 0 24px' }}>
+      {/* Identity */}
+      <div style={{ padding:'0 20px', marginBottom:'24px' }}>
+        <div style={{ display:'flex', alignItems:'center', gap:'11px', marginBottom:'14px' }}>
+          <div style={{ width:40, height:40, borderRadius:'50%', overflow:'hidden', flexShrink:0, border:'1.5px solid rgba(var(--accent-rgb),0.45)', boxShadow:'0 0 14px rgba(var(--accent-rgb),0.15)' }}>
+            <img src="avatar.jpg" alt="Huu Vy" style={{ width:'100%', height:'100%', objectFit:'cover' }}
+              onError={e => { e.target.style.display='none'; e.target.parentElement.innerHTML='<span style="font-family:JetBrains Mono,monospace;font-size:13px;font-weight:700;color:var(--accent);display:flex;align-items:center;justify-content:center;height:100%">VH</span>'; }} />
+          </div>
+          <div>
+            <div style={{ fontWeight:700, fontSize:'14px', color:'var(--text-primary)', lineHeight:1.2 }}>Huu Vy</div>
+            <div style={{ fontFamily:'JetBrains Mono,monospace', fontSize:'9px', color:'var(--text-dim)', marginTop:'3px', textTransform:'uppercase', letterSpacing:'0.06em' }}>QC Engineer</div>
+          </div>
+        </div>
+        {/* Status */}
+        <div style={{ display:'inline-flex', alignItems:'center', gap:'6px', padding:'4px 10px', borderRadius:'20px', background:'rgba(var(--accent-rgb),0.08)', border:'1px solid rgba(var(--accent-rgb),0.2)' }}>
+          <div style={{ width:5, height:5, borderRadius:'50%', background:'var(--accent)', boxShadow:'0 0 6px var(--accent)', animation: isRunning ? 'pulseDot 1s ease infinite' : 'none' }} />
+          <span style={{ fontFamily:'JetBrains Mono,monospace', fontSize:'9px', color:'var(--accent)', textTransform:'uppercase', letterSpacing:'0.08em' }}>{isRunning ? T.running : T.online}</span>
+        </div>
+      </div>
+
+      {/* Language toggle */}
+      <div style={{ padding:'0 20px', marginBottom:'20px' }}>
+        <div style={{ fontFamily:'JetBrains Mono,monospace', fontSize:'9px', color:'var(--text-dim)', textTransform:'uppercase', letterSpacing:'0.1em', marginBottom:'6px' }}>
+          {lang === 'en' ? 'Language' : 'Ngôn Ngữ'}
+        </div>
+        <div style={{ display:'flex', gap:'4px' }}>
+          {['en','vi'].map(l => (
+            <button key={l} onClick={() => setLang(l)} style={{
+              flex:1, fontFamily:'JetBrains Mono,monospace', fontSize:'10px', fontWeight:600,
+              padding:'5px 0', borderRadius:'6px', cursor:'pointer', letterSpacing:'0.04em',
+              border: lang===l ? '1px solid rgba(var(--accent-rgb),0.5)' : '1px solid var(--border)',
+              background: lang===l ? 'rgba(var(--accent-rgb),0.12)' : 'transparent',
+              color: lang===l ? 'var(--accent)' : 'var(--text-dim)',
+              transition:'all 0.15s',
+            }}>{l.toUpperCase()}</button>
+          ))}
+        </div>
+      </div>
+
+      {/* Nav */}
+      <div style={{ padding:'0 10px', flex:1 }}>
+        <div style={{ fontFamily:'JetBrains Mono,monospace', fontSize:'9px', color:'var(--text-dim)', textTransform:'uppercase', letterSpacing:'0.1em', padding:'0 10px', marginBottom:'4px' }}>
+          {lang==='en' ? 'Navigation' : 'Điều Hướng'}
+        </div>
+        {navItems.map(item => {
+          const isActive = active === item.id;
+          return (
+            <button key={item.id} onClick={() => scrollTo(item.id)} style={{
+              width:'100%', textAlign:'left', padding:'7px 10px', borderRadius:'7px',
+              border:'none', cursor:'pointer', fontFamily:'JetBrains Mono,monospace', fontSize:'11px',
+              background: isActive ? 'rgba(var(--accent-rgb),0.1)' : 'transparent',
+              color: isActive ? 'var(--accent)' : 'var(--text-dim)',
+              transition:'all 0.15s', display:'flex', alignItems:'center', gap:'8px',
+            }}
+              onMouseEnter={e => { if (!isActive) { e.currentTarget.style.background='rgba(255,255,255,0.04)'; e.currentTarget.style.color='var(--text-secondary)'; } }}
+              onMouseLeave={e => { if (!isActive) { e.currentTarget.style.background='transparent'; e.currentTarget.style.color='var(--text-dim)'; } }}
+            >
+              {isActive && <div style={{ width:2, height:12, borderRadius:1, background:'var(--accent)', flexShrink:0 }} />}
+              {item.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* CV + contact */}
+      <div style={{ padding:'16px 20px 0', borderTop:'1px solid var(--border)', marginTop:'16px' }}>
+        <div style={{ display:'flex', gap:'6px', marginBottom:'10px' }}>
+          <a href="/CV/CV_VyQuangHuu_QCEngineer_ENG.pdf" download style={{ flex:1, textAlign:'center', fontFamily:'JetBrains Mono,monospace', fontSize:'9px', padding:'6px 4px', border:'1px solid rgba(var(--accent-rgb),0.3)', borderRadius:'6px', color:'var(--accent)', background:'rgba(var(--accent-rgb),0.06)' }}>{T.cvEn}</a>
+          <a href="/CV/CV_VyQuangHuu_QCEngineer_VIE.pdf" download style={{ flex:1, textAlign:'center', fontFamily:'JetBrains Mono,monospace', fontSize:'9px', padding:'6px 4px', border:'1px solid var(--border)', borderRadius:'6px', color:'var(--text-dim)', background:'transparent' }}>{T.cvVi}</a>
+        </div>
+        <a href="https://linkedin.com/in/huuvy0109" target="_blank" rel="noopener noreferrer"
+          style={{ display:'block', fontFamily:'JetBrains Mono,monospace', fontSize:'9px', color:'var(--text-dim)', textAlign:'center' }}
+          onMouseEnter={e => e.currentTarget.style.color='var(--accent)'}
+          onMouseLeave={e => e.currentTarget.style.color='var(--text-dim)'}
+        >LinkedIn ↗</a>
+      </div>
+    </nav>
+  );
+}
+
+// ── Hero ─────────────────────────────────────────────────────
+function HeroSection({ lang, onRunPipeline }) {
+  const l = lang || 'en';
+  const T = HERO_T[l];
+  const stats = STATS[l];
+
+  return (
+    <section id="hero" style={{ paddingTop:'60px', paddingBottom:'48px', borderBottom:'1px solid var(--border)' }}>
+      <div style={{ display:'flex', alignItems:'center', gap:'8px', marginBottom:'20px' }}>
+        <div style={{ width:24, height:1, background:'var(--accent)' }} />
+        <span style={{ fontFamily:'JetBrains Mono,monospace', fontSize:'10px', color:'var(--accent)', textTransform:'uppercase', letterSpacing:'0.12em' }}>{T.role}</span>
+      </div>
+
+      <h1 style={{
+        fontSize:'clamp(3.2rem, 6vw, 5.5rem)', fontWeight:700, lineHeight:0.92,
+        letterSpacing:'-0.03em', marginBottom:'22px',
+        background:'linear-gradient(135deg, var(--text-primary) 0%, rgba(var(--accent-rgb),.85) 55%, var(--text-secondary) 100%)',
+        WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text',
+      }}>HUU VY</h1>
+
+      <p style={{ fontSize:'14px', color:'var(--text-secondary)', maxWidth:'500px', lineHeight:1.75, marginBottom:'32px' }}>{T.desc}</p>
+
+      {/* Stats row */}
+      <div style={{ display:'flex', gap:'36px', marginBottom:'32px', flexWrap:'wrap' }}>
+        {stats.map(s => (
+          <div key={s.label}>
+            <div style={{ fontFamily:'JetBrains Mono,monospace', fontSize:'1.7rem', fontWeight:700, color:'var(--accent)', lineHeight:1 }}>{s.value}</div>
+            <div style={{ fontFamily:'JetBrains Mono,monospace', fontSize:'9px', color:'var(--text-dim)', textTransform:'uppercase', letterSpacing:'0.08em', marginTop:'5px' }}>{s.label}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* CTAs */}
+      <div style={{ display:'flex', gap:'10px', flexWrap:'wrap', marginBottom:'28px' }}>
+        <button onClick={onRunPipeline} style={{ fontFamily:'JetBrains Mono,monospace', fontSize:'12px', padding:'9px 20px', borderRadius:'7px', cursor:'pointer', border:'1px solid rgba(var(--accent-rgb),.5)', background:'rgba(var(--accent-rgb),.1)', color:'var(--accent)', fontWeight:600, transition:'background .2s' }}
+          onMouseEnter={e => e.currentTarget.style.background='rgba(var(--accent-rgb),.18)'}
+          onMouseLeave={e => e.currentTarget.style.background='rgba(var(--accent-rgb),.1)'}
+        >{T.cta1}</button>
+        <button onClick={() => { const el=document.getElementById('journey'); if(el){const top=el.getBoundingClientRect().top+window.scrollY-24; window.scrollTo({top,behavior:'smooth'});} }} style={{ fontFamily:'JetBrains Mono,monospace', fontSize:'12px', padding:'9px 20px', borderRadius:'7px', cursor:'pointer', border:'1px solid var(--border)', background:'transparent', color:'var(--text-secondary)', transition:'all .2s' }}
+          onMouseEnter={e => { e.currentTarget.style.borderColor='rgba(var(--accent-rgb),.3)'; e.currentTarget.style.color='var(--text-primary)'; }}
+          onMouseLeave={e => { e.currentTarget.style.borderColor='var(--border)'; e.currentTarget.style.color='var(--text-secondary)'; }}
+        >{T.cta2}</button>
+      </div>
+
+      {/* Tags */}
+      <div style={{ display:'flex', flexWrap:'wrap', gap:'6px' }}>
+        {TAGS.map(t => (
+          <span key={t} style={{ fontFamily:'JetBrains Mono,monospace', fontSize:'9px', padding:'4px 10px', borderRadius:'5px', background:'var(--surface-2)', border:'1px solid var(--border)', color:'var(--text-dim)', textTransform:'uppercase', letterSpacing:'0.05em' }}>{t}</span>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+// ── Tweaks Panel ─────────────────────────────────────────────
+const THEMES = [
+  { id:'editorial', en:'Editorial', vi:'Biên Tập', sub:{ en:'Warm amber dark', vi:'Tông hổ phách ấm' } },
+  { id:'sovereign', en:'Sovereign', vi:'Sovereign', sub:{ en:'Refined cyan dark', vi:'Cyan tinh tế' } },
+  { id:'verdant',   en:'Verdant',   vi:'Verdant',   sub:{ en:'Emerald dark', vi:'Xanh lá đậm' } },
+];
+
+function TweaksPanel({ open, theme, setTheme, lang }) {
+  const l = lang || 'en';
+  return (
+    <div className={`tweaks-panel ${open ? 'open' : ''}`}>
+      <div style={{ fontFamily:'JetBrains Mono,monospace', fontSize:'10px', color:'var(--text-dim)', textTransform:'uppercase', letterSpacing:'0.1em', marginBottom:'12px' }}>Tweaks</div>
+      <div style={{ fontFamily:'JetBrains Mono,monospace', fontSize:'10px', color:'var(--text-secondary)', marginBottom:'8px' }}>{l==='en' ? 'Theme' : 'Giao Diện'}</div>
+      <div style={{ display:'flex', flexDirection:'column', gap:'6px' }}>
+        {THEMES.map(t => (
+          <button key={t.id} onClick={() => setTheme(t.id)} style={{ width:'100%', textAlign:'left', padding:'8px 10px', borderRadius:'7px', cursor:'pointer', border:`1px solid ${theme===t.id ? 'rgba(var(--accent-rgb),.4)' : 'var(--border)'}`, background: theme===t.id ? 'rgba(var(--accent-rgb),.08)' : 'var(--surface-3)', color: theme===t.id ? 'var(--accent)' : 'var(--text-secondary)', fontFamily:'JetBrains Mono,monospace', fontSize:'11px', transition:'all .15s' }}>
+            <div>{t[l]}</div>
+            <div style={{ fontSize:'9px', color:'var(--text-dim)', marginTop:'2px' }}>{t.sub[l]}</div>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── App ──────────────────────────────────────────────────────
+function App() {
+  const pipeline = window.usePipeline();
+  const [active, setActive] = useState('hero');
+  const [lang, setLang]     = useState(() => localStorage.getItem('pf-lang') || 'en');
+  const [theme, setTheme]   = useState(() => localStorage.getItem('pf-theme') || 'editorial');
+  const [tweaks, setTweaks] = useState(false);
+
+  useEffect(() => { document.body.setAttribute('data-theme', theme); localStorage.setItem('pf-theme', theme); }, [theme]);
+  useEffect(() => { localStorage.setItem('pf-lang', lang); }, [lang]);
+
+  // Active section via IntersectionObserver
+  useEffect(() => {
+    const ids = ['hero','pipeline','journey','skills','history','sanitizer'];
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) setActive(e.target.id); });
+    }, { rootMargin:'-30% 0px -60% 0px' });
+    ids.forEach(id => { const el = document.getElementById(id); if (el) obs.observe(el); });
+    return () => obs.disconnect();
+  }, []);
+
+  // Tweaks toggle
+  useEffect(() => {
+    const h = e => {
+      if (e.data?.type === '__activate_edit_mode')   setTweaks(true);
+      if (e.data?.type === '__deactivate_edit_mode') setTweaks(false);
+    };
+    window.addEventListener('message', h);
+    window.parent.postMessage({ type:'__edit_mode_available' }, '*');
+    return () => window.removeEventListener('message', h);
+  }, []);
+
+  const handleRunPipeline = () => {
+    if (pipeline.phase === 'idle') pipeline.trigger(lang);
+    const el = document.getElementById('pipeline');
+    if (el) { const top = el.getBoundingClientRect().top + window.scrollY - 24; window.scrollTo({ top, behavior:'smooth' }); }
+  };
+
+  const FT = FOOTER_T[lang];
+
+  return (
+    <>
+      <Sidebar active={active} pipelinePhase={pipeline.phase} lang={lang} setLang={setLang} />
+
+      <main className="main-content">
+        <HeroSection lang={lang} onRunPipeline={handleRunPipeline} />
+
+        <div style={{ borderTop:'1px solid var(--border)' }}>
+          <window.PipelineSection pipeline={pipeline} lang={lang} />
+        </div>
+        <div style={{ borderTop:'1px solid var(--border)' }}>
+          <window.JourneySection lang={lang} />
+        </div>
+        <div style={{ borderTop:'1px solid var(--border)' }}>
+          <window.SkillsSection lang={lang} />
+        </div>
+        <div style={{ borderTop:'1px solid var(--border)' }}>
+          <window.TestHistorySection lang={lang} />
+        </div>
+        <div style={{ borderTop:'1px solid var(--border)' }}>
+          <window.SanitizerSection lang={lang} />
+        </div>
+
+        <footer style={{ borderTop:'1px solid var(--border)', padding:'32px 0 40px', fontFamily:'JetBrains Mono,monospace', fontSize:'10px', color:'var(--text-dim)', textAlign:'center' }}>
+          <p>{FT.line1}</p>
+          <p style={{ marginTop:'6px', opacity:.5 }}>{FT.line2} <span style={{ color:'var(--accent)' }}>{FT.sut}</span></p>
+        </footer>
+      </main>
+
+      <TweaksPanel open={tweaks} theme={theme} setTheme={t => { setTheme(t); window.parent.postMessage({ type:'__edit_mode_set_keys', edits:{ theme:t } }, '*'); }} lang={lang} />
+    </>
+  );
+}
+
+const TWEAK_DEFAULS = /*EDITMODE-BEGIN*/{
+  "theme": "verdant"
+}/*EDITMODE-END*/;
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

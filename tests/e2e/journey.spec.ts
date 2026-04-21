@@ -1,23 +1,23 @@
 import { test, expect } from '@playwright/test'
 
-test.describe('Journey Section', () => {
+test.describe('Phần Hành trình (Journey)', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/')
   })
 
-  test('should render journey section with correct heading', async ({ page }) => {
+  test('[TC-JOUR-001] hiển thị phần hành trình với tiêu đề chính xác', async ({ page }) => {
     await page.getByTestId('journey-section').scrollIntoViewIfNeeded()
     await expect(page.getByTestId('journey-section')).toBeVisible()
   })
 
-  test('should display all company names', async ({ page }) => {
+  test('[TC-JOUR-002] hiển thị tên tất cả các công ty', async ({ page }) => {
     await page.getByTestId('journey-section').scrollIntoViewIfNeeded()
     await expect(page.getByText('KiLand', { exact: true }).first()).toBeVisible()
     await expect(page.getByText('Seedcom Food').first()).toBeVisible()
     await expect(page.getByText('Haravan').first()).toBeVisible()
   })
 
-  test('should display correct year/date labels', async ({ page }) => {
+  test('[TC-JOUR-003] hiển thị nhãn năm/ngày tháng chính xác', async ({ page }) => {
     await page.getByTestId('journey-section').scrollIntoViewIfNeeded()
     await expect(page.getByText('Oct 2025').first()).toBeVisible()
     await expect(page.getByText('Jan 2025').first()).toBeVisible()
@@ -26,7 +26,7 @@ test.describe('Journey Section', () => {
     await expect(page.getByText('Jan 2019').first()).toBeVisible()
   })
 
-  test('should display project links with correct href', async ({ page }) => {
+  test('[TC-JOUR-004] hiển thị liên kết dự án với href chính xác', async ({ page }) => {
     await page.getByTestId('journey-section').scrollIntoViewIfNeeded()
     // KiLand is open by default
     await expect(page.getByRole('link', { name: /KiLand\.com\.vn/i }))
@@ -41,18 +41,18 @@ test.describe('Journey Section', () => {
       .toHaveAttribute('href', /haraworks\.vn/)
   })
 
-  test('should show Employee of Year award for Haravan', async ({ page }) => {
+  test('[TC-JOUR-005] hiển thị giải thưởng Nhân viên của năm cho Haravan', async ({ page }) => {
     await page.getByTestId('journey-section').scrollIntoViewIfNeeded()
     // Open Haravan Engineer node which has the award
     await page.getByTestId('journey-node-haravan-engineer').click()
     await expect(page.getByText(/Employee of the Year 2019/i)).toBeVisible()
   })
 
-  test('should use accordion/scroll layout — no tab bar', async ({ page }) => {
+  test('[TC-JOUR-006] sử dụng bố cục accordion/cuộn — không có thanh tab', async ({ page }) => {
     await expect(page.locator('[role="tab"]')).toHaveCount(0)
   })
 
-  test('should expand accordion item when clicked', async ({ page }) => {
+  test('[TC-JOUR-007] mở rộng mục accordion khi click', async ({ page }) => {
     await page.getByTestId('journey-section').scrollIntoViewIfNeeded()
     const accordionTriggers = page.locator('[data-testid^="journey-accordion-"]')
     const count = await accordionTriggers.count()

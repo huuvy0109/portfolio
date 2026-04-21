@@ -13,7 +13,26 @@
       "WebFetch(domain:github.com)",
       "WebFetch(domain:raw.githubusercontent.com)",
       "Bash(gh api *)",
-      "WebFetch(domain:api.github.com)"
+      "WebFetch(domain:api.github.com)",
+      "Bash(npm uninstall *)",
+      "Bash(node -e \"require\\('@neondatabase/serverless'\\); require\\('drizzle-orm'\\); require\\('next-auth'\\); require\\('bcryptjs'\\); require\\('@vercel/blob'\\); console.log\\('all ok'\\)\")",
+      "Bash(xargs grep *)",
+      "Bash(npx dotenv-cli -e .env.local -- node -e ' *)",
+      "Bash(npx dotenv-cli *)",
+      "Bash(node -e \"import\\('formdata-node'\\).then\\(\\(\\)=>console.log\\('ok'\\)\\).catch\\(e=>console.log\\('missing:',e.message\\)\\)\")",
+      "Bash(gh run *)",
+      "Bash(git -C \"d:/Personal/portfolio\" status)",
+      "Bash(git -C \"d:/Personal/portfolio\" diff scripts/upload-report.mjs)",
+      "Bash(git -C \"d:/Personal/portfolio\" add scripts/upload-report.mjs)",
+      "Bash(git -C d:/Personal/portfolio commit -m ' *)",
+      "Bash(rm \"d:/Personal/portfolio/.git/index.lock\")",
+      "Bash(rm \"d:/Personal/portfolio/.git/HEAD.lock\")",
+      "Bash(git -C \"d:/Personal/portfolio\" push origin main)",
+      "Bash(cat tailwind.config.ts)",
+      "Bash(cat tailwind.config.js)",
+      "Bash(node -e \"const p = require\\('path'\\); console.log\\(p.join\\('tests/e2e', '.auth/owner.json'\\)\\); console.log\\(p.join\\(__dirname, 'tests/e2e/.auth/owner.json'\\)\\)\")",
+      "Bash(git stash *)",
+      "Bash(git checkout *)"
     ]
   }
 }

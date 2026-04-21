@@ -4,18 +4,18 @@ import path from 'path'
 const OWNER_FILE = path.join(__dirname, '.auth/owner.json')
 const MEMBER_FILE = path.join(__dirname, '.auth/member.json')
 
-test.describe('Projects — owner', () => {
+test.describe('Dự án — chủ sở hữu (owner)', () => {
   test.use({ storageState: OWNER_FILE })
 
   test.beforeEach(async ({ page }) => {
     await page.goto('/dashboard/projects')
   })
 
-  test('should render projects page', async ({ page }) => {
+  test('[TC-PROJ-001] hiển thị trang dự án', async ({ page }) => {
     await expect(page.getByTestId('btn-new-project')).toBeVisible()
   })
 
-  test('should show empty state when no projects exist', async ({ page }) => {
+  test('[TC-PROJ-002] hiển thị trạng thái trống khi không có dự án nào', async ({ page }) => {
     const list = page.getByTestId('projects-list')
     const empty = page.getByTestId('projects-empty')
     const hasProjects = await list.isVisible()
@@ -24,7 +24,7 @@ test.describe('Projects — owner', () => {
     }
   })
 
-  test('should toggle new project form on button click', async ({ page }) => {
+  test('[TC-PROJ-003] bật/tắt form tạo dự án mới khi click nút', async ({ page }) => {
     await expect(page.getByTestId('form-new-project')).not.toBeVisible()
     await page.getByTestId('btn-new-project').click()
     await expect(page.getByTestId('form-new-project')).toBeVisible()
@@ -32,19 +32,19 @@ test.describe('Projects — owner', () => {
     await expect(page.getByTestId('form-new-project')).not.toBeVisible()
   })
 
-  test('should auto-generate slug from project name', async ({ page }) => {
+  test('[TC-PROJ-004] tự động tạo slug từ tên dự án', async ({ page }) => {
     await page.getByTestId('btn-new-project').click()
     await page.getByTestId('input-project-name').fill('My Test Project')
     await expect(page.getByTestId('input-project-slug')).toHaveValue('my-test-project')
   })
 
-  test('should auto-generate slug removing special characters', async ({ page }) => {
+  test('[TC-PROJ-005] tự động tạo slug và loại bỏ ký tự đặc biệt', async ({ page }) => {
     await page.getByTestId('btn-new-project').click()
     await page.getByTestId('input-project-name').fill('Project @#! 123')
     await expect(page.getByTestId('input-project-slug')).toHaveValue('project--123')
   })
 
-  test('should create a new project and show in list', async ({ page, request }) => {
+  test('[TC-PROJ-006] tạo dự án mới và hiển thị trong danh sách', async ({ page, request }) => {
     const slug = `e2e-test-${Date.now()}`
     let createdId: string | null = null
 
@@ -66,7 +66,7 @@ test.describe('Projects — owner', () => {
     if (createdId) await request.delete(`/api/projects/${createdId}`)
   })
 
-  test('should show error on duplicate slug', async ({ page, request }) => {
+  test('[TC-PROJ-007] hiển thị lỗi khi trùng slug', async ({ page, request }) => {
     const dupSlug = `dup-slug-${Date.now()}`
     let createdId: string | null = null
 
@@ -95,13 +95,13 @@ test.describe('Projects — owner', () => {
     if (createdId) await request.delete(`/api/projects/${createdId}`)
   })
 
-  test('should not submit create form with empty name', async ({ page }) => {
+  test('[TC-PROJ-008] không gửi form tạo khi để trống tên', async ({ page }) => {
     await page.getByTestId('btn-new-project').click()
     await page.getByTestId('btn-create-project').click()
     await expect(page.getByTestId('form-new-project')).toBeVisible()
   })
 
-  test('should delete a project after confirm', async ({ page }) => {
+  test('[TC-PROJ-009] xóa dự án sau khi xác nhận', async ({ page }) => {
     const slug = `e2e-del-${Date.now()}`
     await page.getByTestId('btn-new-project').click()
     await page.getByTestId('input-project-name').fill('Delete Me')
@@ -115,15 +115,15 @@ test.describe('Projects — owner', () => {
   })
 })
 
-test.describe('Projects — member visibility', () => {
+test.describe('Dự án — quyền hiển thị của thành viên', () => {
   test.use({ storageState: MEMBER_FILE })
 
-  test('should allow member to view projects page', async ({ page }) => {
+  test('[TC-PROJ-010] cho phép thành viên xem trang dự án', async ({ page }) => {
     await page.goto('/dashboard/projects')
     await expect(page).toHaveURL(/\/dashboard\/projects/)
   })
 
-  test('should only see projects they are member of', async ({ page }) => {
+  test('[TC-PROJ-011] chỉ xem được những dự án mà họ là thành viên', async ({ page }) => {
     await page.goto('/dashboard/projects')
     const list = page.getByTestId('projects-list')
     const empty = page.getByTestId('projects-empty')

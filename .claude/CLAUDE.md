@@ -9,7 +9,8 @@ Owner: Vy Quang Huu — QC Engineer 6+ năm | huuvy0109@gmail.com
 
 - Design system, màu sắc, animation → xem [rules/design.md](rules/design.md)
 - Tech stack, cấu trúc, coding conventions → xem [rules/tech-default.md](rules/tech-default.md)
-- Sprint plan, workflow, quy tắc vận hành → xem [rules/workflow.md](rules/workflow.md)
+- Workflow, quy tắc vận hành → xem [rules/workflow.md](rules/workflow.md)
+- Quản lý Sprints, roadmap → xem [sprints.md](sprints.md)
 
 ## Quick Reference
 
@@ -18,4 +19,4 @@ npm run dev     → localhost:3000
 npm run build   → TypeScript check + production build
 ```
 
-Sprint hiện tại: **Sprint 4** — Personal info update, SEO, TestHistorySection, Go-Live
+*(Ghi chú: Xem chi tiết lộ trình và các Sprints tại [sprints.md](sprints.md))*

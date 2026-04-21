@@ -3,10 +3,10 @@ import path from 'path'
 
 const OWNER_FILE = path.join(__dirname, '.auth/owner.json')
 
-test.describe('Project Runs', () => {
+test.describe('Lượt chạy dự án (Project Runs)', () => {
   test.use({ storageState: OWNER_FILE })
 
-  test('should show empty state when no runs exist for a new project', async ({ page }) => {
+  test('[TC-RUNS-001] hiển thị trạng thái trống khi không có lượt chạy nào cho dự án mới', async ({ page }) => {
     const slug = `e2e-runs-${Date.now()}`
     // Create project first
     await page.goto('/dashboard/projects')
@@ -20,7 +20,7 @@ test.describe('Project Runs', () => {
     await expect(page.getByTestId('runs-empty')).toBeVisible()
   })
 
-  test('should NOT show Trigger CI button when ciConfig is not set', async ({ page }) => {
+  test('[TC-RUNS-002] KHÔNG hiển thị nút Trigger CI khi chưa cấu hình CI', async ({ page }) => {
     const slug = `e2e-noci-${Date.now()}`
     await page.goto('/dashboard/projects')
     await page.getByTestId('btn-new-project').click()
@@ -33,7 +33,7 @@ test.describe('Project Runs', () => {
     await expect(page.getByTestId('btn-trigger-ci')).not.toBeVisible()
   })
 
-  test('should show runs table when runs exist', async ({ page }) => {
+  test('[TC-RUNS-003] hiển thị bảng lượt chạy khi có dữ liệu', async ({ page }) => {
     await page.goto('/dashboard/projects')
     const list = page.getByTestId('projects-list')
     const hasProjects = await list.isVisible()
@@ -59,7 +59,7 @@ test.describe('Project Runs', () => {
     }
   })
 
-  test('should open run detail modal on Detail click', async ({ page }) => {
+  test('[TC-RUNS-004] mở modal chi tiết lượt chạy khi click vào Detail', async ({ page }) => {
     await page.goto('/dashboard/projects')
     const list = page.getByTestId('projects-list')
     if (!await list.isVisible()) {
@@ -80,7 +80,7 @@ test.describe('Project Runs', () => {
     }
   })
 
-  test('should close run detail modal on close button click', async ({ page }) => {
+  test('[TC-RUNS-005] đóng modal chi tiết lượt chạy khi click vào nút đóng', async ({ page }) => {
     await page.goto('/dashboard/projects')
     const list = page.getByTestId('projects-list')
     if (!await list.isVisible()) {
@@ -103,7 +103,7 @@ test.describe('Project Runs', () => {
     }
   })
 
-  test('should show run status badges in correct colors', async ({ page }) => {
+  test('[TC-RUNS-006] hiển thị huy hiệu trạng thái với màu sắc chính xác', async ({ page }) => {
     await page.goto('/dashboard/projects')
     const list = page.getByTestId('projects-list')
     if (!await list.isVisible()) {

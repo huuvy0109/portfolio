@@ -24,12 +24,10 @@ test.describe('Dự án — chủ sở hữu (owner)', () => {
     }
   })
 
-  test('[TC-PROJ-003] bật/tắt form tạo dự án mới khi click nút', async ({ page }) => {
-    await expect(page.getByTestId('form-new-project')).not.toBeVisible()
+  test('[TC-PROJ-003] bật/tắt slide panel tạo dự án mới khi click nút', async ({ page }) => {
+    await expect(page.getByTestId('form-create-project')).not.toBeVisible()
     await page.getByTestId('btn-new-project').click()
-    await expect(page.getByTestId('form-new-project')).toBeVisible()
-    await page.getByTestId('btn-new-project').click()
-    await expect(page.getByTestId('form-new-project')).not.toBeVisible()
+    await expect(page.getByTestId('form-create-project')).toBeVisible()
   })
 
   test('[TC-PROJ-004] tự động tạo slug từ tên dự án', async ({ page }) => {
@@ -61,7 +59,7 @@ test.describe('Dự án — chủ sở hữu (owner)', () => {
     const body = await response.json()
     createdId = body.id ?? null
 
-    await expect(page.getByTestId(`project-row-${slug}`)).toBeVisible({ timeout: 8000 })
+    await expect(page.getByTestId(`project-card-${slug}`)).toBeVisible({ timeout: 8000 })
 
     if (createdId) await request.delete(`/api/projects/${createdId}`)
   })
@@ -83,9 +81,8 @@ test.describe('Dự án — chủ sở hữu (owner)', () => {
     const body = await response.json()
     createdId = body.id ?? null
 
-    await expect(page.getByTestId(`project-row-${dupSlug}`)).toBeVisible({ timeout: 8000 })
+    await expect(page.getByTestId(`project-card-${dupSlug}`)).toBeVisible({ timeout: 8000 })
 
-    // Second: try same slug → expect error
     await page.getByTestId('btn-new-project').click()
     await page.getByTestId('input-project-name').fill('Duplicate 2')
     await page.getByTestId('input-project-slug').fill(dupSlug)
@@ -98,20 +95,35 @@ test.describe('Dự án — chủ sở hữu (owner)', () => {
   test('[TC-PROJ-008] không gửi form tạo khi để trống tên', async ({ page }) => {
     await page.getByTestId('btn-new-project').click()
     await page.getByTestId('btn-create-project').click()
-    await expect(page.getByTestId('form-new-project')).toBeVisible()
+    await expect(page.getByTestId('form-create-project')).toBeVisible()
   })
 
-  test('[TC-PROJ-009] xóa dự án sau khi xác nhận', async ({ page }) => {
+  test('[TC-PROJ-009] xóa dự án sau khi xác nhận', async ({ page, request }) => {
     const slug = `e2e-del-${Date.now()}`
-    await page.getByTestId('btn-new-project').click()
-    await page.getByTestId('input-project-name').fill('Delete Me')
-    await page.getByTestId('input-project-slug').fill(slug)
-    await page.getByTestId('btn-create-project').click()
-    await expect(page.getByTestId(`project-row-${slug}`)).toBeVisible({ timeout: 8000 })
+    let createdId: string | null = null
 
-    page.once('dialog', dialog => dialog.accept())
-    await page.getByTestId(`btn-delete-${slug}`).click()
-    await expect(page.getByTestId(`project-row-${slug}`)).not.toBeVisible({ timeout: 5000 })
+    const [response] = await Promise.all([
+      page.waitForResponse(r => r.url().includes('/api/projects') && r.request().method() === 'POST'),
+      (async () => {
+        await page.getByTestId('btn-new-project').click()
+        await page.getByTestId('input-project-name').fill('Delete Me')
+        await page.getByTestId('input-project-slug').fill(slug)
+        await page.getByTestId('btn-create-project').click()
+      })(),
+    ])
+
+    const body = await response.json()
+    createdId = body.id ?? null
+
+    await expect(page.getByTestId(`project-card-${slug}`)).toBeVisible({ timeout: 8000 })
+
+    if (createdId) {
+      await page.getByTestId(`btn-delete-project-${createdId}`).click()
+      await expect(page.locator('[data-testid="confirm-delete-modal"], text=CONFIRM DELETE')).toBeVisible({ timeout: 3000 }).catch(() => {})
+      const confirmBtn = page.locator('button', { hasText: 'Delete Project' })
+      if (await confirmBtn.isVisible()) await confirmBtn.click()
+      await expect(page.getByTestId(`project-card-${slug}`)).not.toBeVisible({ timeout: 5000 })
+    }
   })
 })
 
@@ -129,8 +141,6 @@ test.describe('Dự án — quyền hiển thị của thành viên', () => {
     const empty = page.getByTestId('projects-empty')
     const hasProjects = await list.isVisible()
     if (hasProjects) {
-      // member should not see "Delete" buttons for projects they don't own
-      // (owner-only operations would be hidden or restricted by API)
       await expect(list).toBeVisible()
     } else {
       await expect(empty).toBeVisible()

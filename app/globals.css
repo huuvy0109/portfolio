@@ -93,7 +93,10 @@
   --accent-red:      var(--danger);
   --accent-blue:     var(--accent2);
   --accent-purple:   var(--accent2);
-  --accent-orange:   var(--warn);
+  --accent-orange:   #f97316;
+  --accent-orange-rgb: 249,115,22;
+  --accent-pink:     #f472b6;
+  --accent-pink-rgb: 244,114,182;
   --glow-cyan:       rgba(var(--accent-rgb), 0.12);
   --glow-green:      rgba(var(--accent3-rgb), 0.12);
   --glow-yellow:     rgba(var(--warn-rgb), 0.12);
@@ -224,4 +227,38 @@ body::after {
 }
 .btn-primary:hover {
   background: rgba(var(--accent-rgb), 0.18);
+}
+
+/* ─── Dashboard content area padding ───────────── */
+/* Mobile: topbar=52px + extra spacing, bottom tab bar=56px */
+.dashboard-content {
+  padding-top: 64px;
+  padding-bottom: 72px;
+}
+/* Desktop: no fixed topbar or bottom tab, normal padding */
+@media (min-width: 1024px) {
+  .dashboard-content {
+    padding-top: 24px;
+    padding-bottom: 24px;
+  }
+}
+
+/* ─── Stats grid: 2×2 on mobile, 4 across on desktop ─ */
+.dashboard-stats-grid {
+  grid-template-columns: repeat(2, 1fr) !important;
+}
+@media (min-width: 768px) {
+  .dashboard-stats-grid {
+    grid-template-columns: repeat(4, 1fr) !important;
+  }
+}
+
+/* ─── Activity grid: 1-col on mobile, 2-col on desktop ─ */
+.dashboard-activity-grid {
+  grid-template-columns: 1fr !important;
+}
+@media (min-width: 768px) {
+  .dashboard-activity-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
 }

@@ -1,14 +1,43 @@
-import { test, expect } from '@playwright/test'
+import { test, expect, type Page, type APIRequestContext } from '@playwright/test'
 import path from 'path'
 
 const OWNER_FILE = path.join(__dirname, '.auth/owner.json')
 const MEMBER_FILE = path.join(__dirname, '.auth/member.json')
 
+async function createProjectViaUI(page: Page, name: string, slug: string): Promise<string | null> {
+  const [response] = await Promise.all([
+    page.waitForResponse(r => r.url().includes('/api/projects') && r.request().method() === 'POST'),
+    (async () => {
+      await page.getByTestId('btn-new-project').click()
+      await page.getByTestId('input-project-name').fill(name)
+      await page.getByTestId('input-project-slug').fill(slug)
+      await page.getByTestId('btn-create-project').click()
+    })(),
+  ])
+  const body = await response.json()
+  return body.id ?? null
+}
+
+async function cleanupProject(request: APIRequestContext, id: string | null) {
+  if (id) await request.delete(`/api/projects/${id}`)
+}
+
 test.describe('Dự án — chủ sở hữu (owner)', () => {
   test.use({ storageState: OWNER_FILE })
 
+  // Shared cleanup registry per test — afterEach reads this
+  let pendingCleanup: { request: APIRequestContext; id: string } | null = null
+
   test.beforeEach(async ({ page }) => {
+    pendingCleanup = null
     await page.goto('/dashboard/projects')
+  })
+
+  test.afterEach(async ({ request }, testInfo) => {
+    if (testInfo.status === 'passed' && pendingCleanup) {
+      await cleanupProject(pendingCleanup.request ?? request, pendingCleanup.id)
+    }
+    pendingCleanup = null
   })
 
   test('[TC-PROJ-001] hiển thị trang dự án', async ({ page }) => {
@@ -44,43 +73,15 @@ test.describe('Dự án — chủ sở hữu (owner)', () => {
 
   test('[TC-PROJ-006] tạo dự án mới và hiển thị trong danh sách', async ({ page, request }) => {
     const slug = `e2e-test-${Date.now()}`
-    let createdId: string | null = null
-
-    const [response] = await Promise.all([
-      page.waitForResponse(r => r.url().includes('/api/projects') && r.request().method() === 'POST'),
-      (async () => {
-        await page.getByTestId('btn-new-project').click()
-        await page.getByTestId('input-project-name').fill('E2E Test Project')
-        await page.getByTestId('input-project-slug').fill(slug)
-        await page.getByTestId('btn-create-project').click()
-      })(),
-    ])
-
-    const body = await response.json()
-    createdId = body.id ?? null
-
+    const createdId = await createProjectViaUI(page, 'E2E Test Project', slug)
+    if (createdId) pendingCleanup = { request, id: createdId }
     await expect(page.getByTestId(`project-card-${slug}`)).toBeVisible({ timeout: 8000 })
-
-    if (createdId) await request.delete(`/api/projects/${createdId}`)
   })
 
   test('[TC-PROJ-007] hiển thị lỗi khi trùng slug', async ({ page, request }) => {
     const dupSlug = `dup-slug-${Date.now()}`
-    let createdId: string | null = null
-
-    const [response] = await Promise.all([
-      page.waitForResponse(r => r.url().includes('/api/projects') && r.request().method() === 'POST'),
-      (async () => {
-        await page.getByTestId('btn-new-project').click()
-        await page.getByTestId('input-project-name').fill('Duplicate')
-        await page.getByTestId('input-project-slug').fill(dupSlug)
-        await page.getByTestId('btn-create-project').click()
-      })(),
-    ])
-
-    const body = await response.json()
-    createdId = body.id ?? null
-
+    const createdId = await createProjectViaUI(page, 'Duplicate', dupSlug)
+    if (createdId) pendingCleanup = { request, id: createdId }
     await expect(page.getByTestId(`project-card-${dupSlug}`)).toBeVisible({ timeout: 8000 })
 
     await page.getByTestId('btn-new-project').click()
@@ -88,8 +89,6 @@ test.describe('Dự án — chủ sở hữu (owner)', () => {
     await page.getByTestId('input-project-slug').fill(dupSlug)
     await page.getByTestId('btn-create-project').click()
     await expect(page.getByTestId('project-form-error')).toBeVisible({ timeout: 5000 })
-
-    if (createdId) await request.delete(`/api/projects/${createdId}`)
   })
 
   test('[TC-PROJ-008] không gửi form tạo khi để trống tên', async ({ page }) => {
@@ -100,30 +99,18 @@ test.describe('Dự án — chủ sở hữu (owner)', () => {
 
   test('[TC-PROJ-009] xóa dự án sau khi xác nhận', async ({ page, request }) => {
     const slug = `e2e-del-${Date.now()}`
-    let createdId: string | null = null
-
-    const [response] = await Promise.all([
-      page.waitForResponse(r => r.url().includes('/api/projects') && r.request().method() === 'POST'),
-      (async () => {
-        await page.getByTestId('btn-new-project').click()
-        await page.getByTestId('input-project-name').fill('Delete Me')
-        await page.getByTestId('input-project-slug').fill(slug)
-        await page.getByTestId('btn-create-project').click()
-      })(),
-    ])
-
-    const body = await response.json()
-    createdId = body.id ?? null
-
+    const createdId = await createProjectViaUI(page, 'Delete Me', slug)
+    // fallback: nếu UI delete fail, afterEach sẽ không cleanup (test fail) → giữ lại để debug
+    if (createdId) pendingCleanup = { request, id: createdId }
     await expect(page.getByTestId(`project-card-${slug}`)).toBeVisible({ timeout: 8000 })
 
-    if (createdId) {
-      await page.getByTestId(`btn-delete-project-${createdId}`).click()
-      await expect(page.locator('[data-testid="confirm-delete-modal"], text=CONFIRM DELETE')).toBeVisible({ timeout: 3000 }).catch(() => {})
-      const confirmBtn = page.locator('button', { hasText: 'Delete Project' })
-      if (await confirmBtn.isVisible()) await confirmBtn.click()
-      await expect(page.getByTestId(`project-card-${slug}`)).not.toBeVisible({ timeout: 5000 })
-    }
+    await page.getByTestId(`btn-delete-project-${createdId}`).click()
+    const confirmBtn = page.locator('button', { hasText: 'Delete Project' })
+    await expect(confirmBtn).toBeVisible({ timeout: 3000 })
+    await confirmBtn.click()
+    await expect(page.getByTestId(`project-card-${slug}`)).not.toBeVisible({ timeout: 5000 })
+
+    pendingCleanup = null // xóa thành công qua UI, không cần cleanup
   })
 })
 

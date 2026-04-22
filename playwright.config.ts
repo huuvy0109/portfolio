@@ -13,7 +13,7 @@ const MEMBER_FILE = path.join(__dirname, 'tests/e2e/.auth/member.json')
 export default defineConfig({
   testDir: './tests/e2e',
   timeout: 30000,
-  retries: 2,
+  retries: 0,
   workers: 2,
   reporter: [
     ['html', { outputFolder: 'playwright-report', open: 'never' }],

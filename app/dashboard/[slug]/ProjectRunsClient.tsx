@@ -96,6 +96,38 @@ export default function ProjectRunsClient({ project, initialRuns }: { project: P
   const failedCount = results.filter(r => r.status === 'failed').length
   const flakyCount = results.filter(r => r.status === 'flaky' || parseInt(r.retryCount ?? '0') > 0).length
 
+  function classifyFailure(r: TestResult): { label: string; color: string; bg: string; border: string } | null {
+    if (r.status !== 'failed') return null
+    const msg = (r.errorMessage ?? '').toLowerCase()
+    if (
+      msg.includes('timeout') ||
+      msg.includes('err_') ||
+      msg.includes('net::') ||
+      msg.includes('econnrefused') ||
+      msg.includes('econnreset') ||
+      msg.includes('socket') ||
+      msg.includes('navigation')
+    ) {
+      return { label: 'Env Issue', color: 'var(--accent-yellow)', bg: 'rgba(245,197,24,0.08)', border: 'rgba(245,197,24,0.25)' }
+    }
+    if (
+      msg.includes('locator') ||
+      msg.includes('gettestid') ||
+      msg.includes('getbytestid') ||
+      msg.includes('tobevisible') ||
+      msg.includes('tohaveurl') ||
+      msg.includes('tocontaintext') ||
+      msg.includes('tohavevalue') ||
+      msg.includes('expect(') ||
+      msg.includes('element(s) not found') ||
+      msg.includes('waiting for') ||
+      msg.includes('selector')
+    ) {
+      return { label: 'Test Script', color: 'var(--accent-blue)', bg: 'rgba(96,165,250,0.08)', border: 'rgba(96,165,250,0.25)' }
+    }
+    return { label: 'Code Bug', color: 'var(--accent-red)', bg: 'rgba(255,68,68,0.08)', border: 'rgba(255,68,68,0.25)' }
+  }
+
   function fmtDuration(ms: string | null) {
     if (!ms) return '—'
     const n = parseInt(ms)
@@ -350,7 +382,7 @@ export default function ProjectRunsClient({ project, initialRuns }: { project: P
               className="absolute inset-0 bg-black/80 backdrop-blur-sm"
             />
             <motion.div
-              data-testid="modal-run-detail"
+              data-testid="run-detail-modal"
               initial={{ opacity: 0, scale: 0.96, y: 16 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.96, y: 16 }}
@@ -477,13 +509,14 @@ export default function ProjectRunsClient({ project, initialRuns }: { project: P
                     <div
                       className="grid px-3 mb-2 font-mono text-[9px] uppercase tracking-widest"
                       style={{
-                        gridTemplateColumns: '1fr 180px 90px 55px 50px',
+                        gridTemplateColumns: '1fr 150px 90px 110px 55px 50px',
                         color: 'var(--text-muted)',
                       }}
                     >
                       <span>Test Case</span>
                       <span>File</span>
                       <span>Status</span>
+                      <span>Phân loại</span>
                       <span>Time</span>
                       <span className="text-right">Retry</span>
                     </div>
@@ -492,6 +525,7 @@ export default function ProjectRunsClient({ project, initialRuns }: { project: P
                       const retry = parseInt(r.retryCount ?? '0')
                       const isFlaky = r.status === 'flaky' || retry > 0
                       const expanded = expandedErrors.has(r.id)
+                      const classification = classifyFailure(r)
 
                       return (
                         <div
@@ -502,7 +536,7 @@ export default function ProjectRunsClient({ project, initialRuns }: { project: P
                           <div
                             className="grid px-3 py-2.5 items-center"
                             style={{
-                              gridTemplateColumns: '1fr 180px 90px 55px 50px',
+                              gridTemplateColumns: '1fr 150px 90px 110px 55px 50px',
                               background: statusBg(r.status),
                             }}
                           >
@@ -531,6 +565,18 @@ export default function ProjectRunsClient({ project, initialRuns }: { project: P
                               >
                                 {r.status.toUpperCase()}
                               </span>
+                            </div>
+                            <div>
+                              {classification ? (
+                                <span
+                                  className="font-mono text-[9px] px-1.5 py-0.5 rounded"
+                                  style={{ background: classification.bg, border: `1px solid ${classification.border}`, color: classification.color }}
+                                >
+                                  {classification.label}
+                                </span>
+                              ) : (
+                                <span className="font-mono text-[9px]" style={{ color: 'var(--text-muted)' }}>—</span>
+                              )}
                             </div>
                             <div>
                               <span className="font-mono text-[10px]" style={{ color: 'var(--text-muted)' }}>

@@ -1,34 +1,57 @@
-import { test, expect } from '@playwright/test'
+import { test, expect, type Page, type APIRequestContext } from '@playwright/test'
 import path from 'path'
 
 const OWNER_FILE = path.join(__dirname, '.auth/owner.json')
 
+async function createProject(page: Page, name: string, slug: string): Promise<string | null> {
+  const [response] = await Promise.all([
+    page.waitForResponse(r => r.url().includes('/api/projects') && r.request().method() === 'POST'),
+    (async () => {
+      await page.goto('/dashboard/projects')
+      await page.getByTestId('btn-new-project').click()
+      await page.getByTestId('input-project-name').fill(name)
+      await page.getByTestId('input-project-slug').fill(slug)
+      await page.getByTestId('btn-create-project').click()
+    })(),
+  ])
+  const body = await response.json()
+  return body.id ?? null
+}
+
+async function deleteProject(request: APIRequestContext, id: string | null) {
+  if (id) await request.delete(`/api/projects/${id}`)
+}
+
 test.describe('Lượt chạy dự án (Project Runs)', () => {
   test.use({ storageState: OWNER_FILE })
 
-  test('[TC-RUNS-001] hiển thị trạng thái trống khi không có lượt chạy nào cho dự án mới', async ({ page }) => {
-    const slug = `e2e-runs-${Date.now()}`
-    // Create project first
-    await page.goto('/dashboard/projects')
-    await page.getByTestId('btn-new-project').click()
-    await page.getByTestId('input-project-name').fill('Runs Test Project')
-    await page.getByTestId('input-project-slug').fill(slug)
-    await page.getByTestId('btn-create-project').click()
-    await expect(page.getByTestId(`project-row-${slug}`)).toBeVisible({ timeout: 8000 })
+  let pendingCleanup: { request: APIRequestContext; id: string } | null = null
 
+  test.beforeEach(async () => {
+    pendingCleanup = null
+  })
+
+  test.afterEach(async ({ request }, testInfo) => {
+    if (testInfo.status === 'passed' && pendingCleanup) {
+      await deleteProject(pendingCleanup.request ?? request, pendingCleanup.id)
+    }
+    pendingCleanup = null
+  })
+
+  test('[TC-RUNS-001] hiển thị trạng thái trống khi không có lượt chạy nào cho dự án mới', async ({ page, request }) => {
+    const slug = `e2e-runs-${Date.now()}`
+    const createdId = await createProject(page, 'Runs Test Project', slug)
+    if (createdId) pendingCleanup = { request, id: createdId }
+    await expect(page.getByTestId(`project-card-${slug}`)).toBeVisible({ timeout: 8000 })
     await page.goto(`/dashboard/${slug}`)
     await expect(page.getByTestId('runs-empty')).toBeVisible()
   })
 
-  test('[TC-RUNS-002] KHÔNG hiển thị nút Trigger CI khi chưa cấu hình CI', async ({ page }) => {
+  test('[TC-RUNS-002] KHÔNG hiển thị nút Trigger CI khi chưa cấu hình CI', async ({ page, request }) => {
     const slug = `e2e-noci-${Date.now()}`
-    await page.goto('/dashboard/projects')
-    await page.getByTestId('btn-new-project').click()
-    await page.getByTestId('input-project-name').fill('No CI Project')
-    await page.getByTestId('input-project-slug').fill(slug)
-    await page.getByTestId('btn-create-project').click()
-    await expect(page.getByTestId(`project-row-${slug}`)).toBeVisible({ timeout: 8000 })
-
+    const createdId = await createProject(page, 'No CI Project', slug)
+    if (createdId) pendingCleanup = { request, id: createdId }
+    await expect(page.getByTestId(`project-card-${slug}`)).toBeVisible({ timeout: 8000 })
     await page.goto(`/dashboard/${slug}`)
     await expect(page.getByTestId('btn-trigger-ci')).not.toBeVisible()
   })
@@ -36,21 +59,18 @@ test.describe('Lượt chạy dự án (Project Runs)', () => {
   test('[TC-RUNS-003] hiển thị bảng lượt chạy khi có dữ liệu', async ({ page }) => {
     await page.goto('/dashboard/projects')
     const list = page.getByTestId('projects-list')
-    const hasProjects = await list.isVisible()
-    if (!hasProjects) {
+    if (!await list.isVisible()) {
       test.skip()
       return
     }
-    // Navigate to first project that has runs
-    const firstViewRuns = page.locator('a:has-text("View Runs →")').first()
+    const firstViewRuns = page.locator('a:has-text("View Runs")').first()
     if (await firstViewRuns.isVisible()) {
       const href = await firstViewRuns.getAttribute('href')
       if (href) {
         await page.goto(href)
         const table = page.getByTestId('runs-table')
         const empty = page.getByTestId('runs-empty')
-        const hasTable = await table.isVisible()
-        if (hasTable) {
+        if (await table.isVisible()) {
           await expect(table).toBeVisible()
         } else {
           await expect(empty).toBeVisible()
@@ -66,7 +86,7 @@ test.describe('Lượt chạy dự án (Project Runs)', () => {
       test.skip()
       return
     }
-    const firstViewRuns = page.locator('a:has-text("View Runs →")').first()
+    const firstViewRuns = page.locator('a:has-text("View Runs")').first()
     if (await firstViewRuns.isVisible()) {
       const href = await firstViewRuns.getAttribute('href')
       if (href) {
@@ -87,7 +107,7 @@ test.describe('Lượt chạy dự án (Project Runs)', () => {
       test.skip()
       return
     }
-    const firstViewRuns = page.locator('a:has-text("View Runs →")').first()
+    const firstViewRuns = page.locator('a:has-text("View Runs")').first()
     if (await firstViewRuns.isVisible()) {
       const href = await firstViewRuns.getAttribute('href')
       if (href) {
@@ -110,7 +130,7 @@ test.describe('Lượt chạy dự án (Project Runs)', () => {
       test.skip()
       return
     }
-    const firstViewRuns = page.locator('a:has-text("View Runs →")').first()
+    const firstViewRuns = page.locator('a:has-text("View Runs")').first()
     if (await firstViewRuns.isVisible()) {
       const href = await firstViewRuns.getAttribute('href')
       if (href) {

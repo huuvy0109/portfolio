@@ -4,6 +4,7 @@ import { useState, Suspense } from 'react'
 import { signIn } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
+import { ToMobileIfSmall } from '@/components/ViewportRedirect'
 
 function LoginForm() {
   const router = useRouter()
@@ -160,8 +161,10 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <Suspense>
-      <LoginForm />
-    </Suspense>
+    <ToMobileIfSmall to="/m/login">
+      <Suspense>
+        <LoginForm />
+      </Suspense>
+    </ToMobileIfSmall>
   )
 }

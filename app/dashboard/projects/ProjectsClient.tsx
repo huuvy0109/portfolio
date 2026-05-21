@@ -233,7 +233,7 @@ export default function ProjectsClient({ initialProjects }: { initialProjects: P
                 style={{
                   background: 'var(--surface-low)',
                   border: '1px solid rgba(249,115,22,0.18)',
-                  padding: '22px 20px 18px',
+                  padding: '24px 22px 20px',
                   backgroundImage: 'radial-gradient(ellipse at top right, rgba(249,115,22,0.07) 0%, transparent 65%)',
                 }}
               >

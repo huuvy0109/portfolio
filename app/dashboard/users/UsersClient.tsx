@@ -127,12 +127,13 @@ export default function UsersClient({ initialUsers, currentUserId }: { initialUs
       >
         {/* Table header */}
         <div
-          className="grid px-5 py-3 border-b font-mono text-[10px] uppercase tracking-widest"
+          className="grid px-5 py-4 border-b font-mono text-[10px] uppercase tracking-widest"
           style={{
             gridTemplateColumns: '1fr 110px 130px 80px',
             borderColor: 'var(--border-subtle)',
             background: 'var(--surface-lowest)',
             color: 'var(--text-muted)',
+            lineHeight: 1.4,
           }}
         >
           <span>Username</span>
@@ -154,10 +155,12 @@ export default function UsersClient({ initialUsers, currentUserId }: { initialUs
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0, x: 16 }}
-                className="grid px-5 py-4 items-center border-b last:border-0"
+                className="grid px-5 items-center border-b last:border-0"
                 style={{
                   gridTemplateColumns: '1fr 110px 130px 80px',
                   borderColor: 'var(--border-subtle)',
+                  paddingTop: '18px',
+                  paddingBottom: '18px',
                 }}
               >
                 {/* Username */}

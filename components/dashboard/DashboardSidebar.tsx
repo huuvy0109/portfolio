@@ -76,23 +76,34 @@ export default function DashboardSidebar({ username, role }: Props) {
           style={{ borderColor: 'var(--border-subtle)' }}
         >
           <div
-            className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 font-mono font-bold"
+            className="flex-shrink-0 flex items-center justify-center font-mono font-bold rounded-lg"
             style={{
+              width: '36px', height: '36px',
               background: 'rgba(249,115,22,0.15)',
               border: '1px solid rgba(249,115,22,0.35)',
               color: 'var(--accent-orange)',
-              fontSize: '10px',
+              fontSize: '13px',
             }}
           >
             {'{}'}
           </div>
-          <span className="font-mono text-[11px] font-bold tracking-wide truncate" style={{ color: 'var(--text-primary)' }}>
-            Command Center
-          </span>
+          <div className="flex flex-col min-w-0">
+            <span className="font-mono text-[11px] font-bold tracking-wide truncate" style={{ color: 'var(--text-primary)' }}>
+              Command Center
+            </span>
+            <span className="font-mono text-[8px] uppercase tracking-widest truncate" style={{ color: 'var(--text-muted)' }}>
+              QA WORKSPACE
+            </span>
+          </div>
         </div>
 
         {/* Nav */}
         <nav className="flex-1 px-2 py-3 flex flex-col gap-0.5">
+          <div className="px-3 mb-2 mt-1">
+            <span className="font-mono text-[8px] uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>
+              Navigation
+            </span>
+          </div>
           {navItems.map(item => {
             const active = isActive(item.href)
             return (
@@ -100,13 +111,14 @@ export default function DashboardSidebar({ username, role }: Props) {
                 key={item.id}
                 href={item.href}
                 data-testid={`nav-link-${item.id}`}
-                className="flex items-center gap-3 py-2.5 rounded-lg transition-all duration-150"
+                className="flex items-center gap-3 rounded-lg transition-all duration-150"
                 style={{
                   background: active ? 'rgba(249,115,22,0.08)' : 'transparent',
                   color: active ? 'var(--accent-orange)' : 'var(--text-muted)',
                   borderLeft: active ? '2px solid var(--accent-orange)' : '2px solid transparent',
+                  padding: '8px 12px',
                   paddingLeft: active ? '10px' : '12px',
-                  paddingRight: '12px',
+                  borderRadius: '7px',
                 }}
               >
                 <span className="flex-shrink-0">{item.icon(active)}</span>
@@ -116,17 +128,33 @@ export default function DashboardSidebar({ username, role }: Props) {
           })}
         </nav>
 
+        {/* SYSTEM LIVE indicator */}
+        <div className="mx-2 mb-2 rounded-xl px-3 py-2.5"
+          style={{ background: 'rgba(249,115,22,0.06)', border: '1px solid rgba(249,115,22,0.2)' }}>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="w-2 h-2 rounded-full flex-shrink-0"
+              style={{ background: 'var(--accent-orange)', animation: 'pulse-glow 1.6s ease-in-out infinite' }} />
+            <span className="font-mono text-[10px] font-bold tracking-widest" style={{ color: 'var(--accent-orange)' }}>
+              SYSTEM LIVE
+            </span>
+          </div>
+          <p className="font-mono text-[9px] leading-relaxed" style={{ color: 'var(--text-muted)' }}>
+            AI core is monitoring active project runs.
+          </p>
+        </div>
+
         {/* User info + sign out */}
         <div className="px-3 py-3 border-t" style={{ borderColor: 'var(--border-subtle)' }}>
           <div className="flex items-center gap-3">
             {/* Avatar */}
             <div
-              className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 font-mono font-bold"
+              className="rounded-full flex items-center justify-center flex-shrink-0 font-mono font-bold"
               style={{
-                background: 'rgba(249,115,22,0.18)',
-                border: '2px solid rgba(249,115,22,0.35)',
+                width: '28px', height: '28px',
+                background: 'rgba(249,115,22,0.15)',
+                border: '1px solid rgba(249,115,22,0.3)',
                 color: 'var(--accent-orange)',
-                fontSize: '13px',
+                fontSize: '11px',
               }}
             >
               {username.slice(0, 1).toUpperCase()}
@@ -138,7 +166,7 @@ export default function DashboardSidebar({ username, role }: Props) {
                 {username}
               </div>
               <div className="font-mono text-[10px] truncate" style={{ color: 'var(--text-muted)' }}>
-                {role === 'owner' ? "Personal'd profile" : role}
+                {role === 'owner' ? 'Owner' : 'Member'}
               </div>
             </div>
 

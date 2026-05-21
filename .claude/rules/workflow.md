@@ -11,6 +11,11 @@ Concept: trang web IS the Subject Under Test. Triết lý "Imperfect Reality".
 
 ### 🔴 HARD STOP Rules
 
+0. **ĐỌC MEMORY TRƯỚC KHI LÀM BẤT CỨ THỨ GÌ.**
+   - Bắt buộc đọc `.claude/memory.md` ngay khi bắt đầu bất kỳ task nào theo workflow.
+   - Áp dụng toàn bộ lessons learned trước khi plan hoặc implement.
+   - **Không được bỏ qua bước này dù task nhỏ hay lớn.**
+
 1. **KHÔNG ĐƯỢC viết code / chỉnh sửa file trước khi có CONFIRM tương ứng.**
    - FAST MODE: KHÔNG implement trước khi user yêu cầu.
    - FULL MODE: KHÔNG implement trước khi có **CONFIRM 1** (user duyệt plan).

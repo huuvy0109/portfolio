@@ -42,42 +42,48 @@ export default async function DashboardPage() {
   const stats = [
     {
       label: 'Projects',
+      sublabel: 'TOTAL OWNED',
       value: projectRows.length,
-      color: 'var(--accent-orange)',
-      border: 'rgba(249,115,22,0.3)',
-      bg: 'rgba(249,115,22,0.1)',
-      iconBg: 'rgba(249,115,22,0.15)',
-      iconBorder: 'rgba(249,115,22,0.3)',
+      color: 'var(--accent)',
+      border: 'rgba(var(--accent-rgb),.3)',
+      bg: 'rgba(var(--accent-rgb),.06)',
+      iconBg: 'rgba(var(--accent-rgb),.12)',
+      iconBorder: 'rgba(var(--accent-rgb),.25)',
+      iconStroke: 'var(--accent)',
       icon: (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-orange)" strokeWidth="1.5">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="1.5">
           <path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" />
         </svg>
       ),
     },
     {
       label: 'Total Runs',
+      sublabel: 'LAST 50 RUNS',
       value: totalRuns,
-      color: 'var(--accent-purple)',
-      border: 'rgba(168,85,247,0.3)',
-      bg: 'rgba(168,85,247,0.1)',
-      iconBg: 'rgba(168,85,247,0.15)',
-      iconBorder: 'rgba(168,85,247,0.3)',
+      color: 'var(--accent2)',
+      border: 'rgba(var(--accent2-rgb),.3)',
+      bg: 'rgba(var(--accent2-rgb),.06)',
+      iconBg: 'rgba(var(--accent2-rgb),.12)',
+      iconBorder: 'rgba(var(--accent2-rgb),.25)',
+      iconStroke: 'var(--accent2)',
       icon: (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-purple)" strokeWidth="1.5">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent2)" strokeWidth="1.5">
           <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
         </svg>
       ),
     },
     {
       label: 'Pass Rate',
+      sublabel: 'LAST 50 RUNS',
       value: `${passRate}%`,
       color: passAccent,
       border: passBorder,
       bg: passBg,
       iconBg: passBg,
       iconBorder: passBorder,
+      iconStroke: passAccent,
       icon: (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={passAccent} strokeWidth="1.5">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={passAccent} strokeWidth="1.5">
           <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
           <polyline points="22 4 12 14.01 9 11.01" />
         </svg>
@@ -85,14 +91,16 @@ export default async function DashboardPage() {
     },
     {
       label: 'Active Users',
+      sublabel: 'WORKSPACE MEMBERS',
       value: userRows.length,
-      color: 'var(--accent-pink)',
-      border: 'rgba(244,114,182,0.3)',
-      bg: 'rgba(244,114,182,0.1)',
-      iconBg: 'rgba(244,114,182,0.15)',
-      iconBorder: 'rgba(244,114,182,0.3)',
+      color: 'var(--info)',
+      border: 'rgba(var(--info-rgb),.3)',
+      bg: 'rgba(var(--info-rgb),.06)',
+      iconBg: 'rgba(var(--info-rgb),.12)',
+      iconBorder: 'rgba(var(--info-rgb),.25)',
+      iconStroke: 'var(--info)',
       icon: (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-pink)" strokeWidth="1.5">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--info)" strokeWidth="1.5">
           <circle cx="9" cy="7" r="4" />
           <path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2" />
           <path d="M16 3.13a4 4 0 010 7.75M21 21v-2a4 4 0 00-3-3.87" />
@@ -113,9 +121,12 @@ export default async function DashboardPage() {
           <span style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-display)', fontSize: '40px', fontWeight: 800, lineHeight: 1.1 }}>
             Welcome back,
           </span>
-          <span style={{ color: 'var(--accent-orange)', fontFamily: 'var(--font-display)', fontSize: '40px', fontWeight: 800, lineHeight: 1.1 }}>
+          <span style={{ color: 'var(--accent)', fontFamily: 'var(--font-display)', fontSize: '40px', fontWeight: 800, lineHeight: 1.1 }}>
             {session?.user?.name}
           </span>
+        </div>
+        <div style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', fontSize: '11px', marginTop: '6px' }}>
+          {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
         </div>
       </div>
 
@@ -133,30 +144,33 @@ export default async function DashboardPage() {
           <div
             key={s.label}
             style={{
-              borderRadius: '20px',
+              borderRadius: '12px',
               padding: '20px 20px 22px',
-              background: s.bg,
-              border: `1px solid ${s.border}`,
+              background: 'var(--surface-2)',
+              border: `1px solid var(--border)`,
               display: 'flex',
               flexDirection: 'column',
-              gap: '16px',
+              gap: '14px',
               minWidth: 0,
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <div style={{
-                width: '38px', height: '38px', borderRadius: '12px', flexShrink: 0,
-                background: s.iconBg, border: `1px solid ${s.iconBorder}`,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }}>
-                {s.icon}
-              </div>
-              <span style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', fontSize: '11px', lineHeight: 1.3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            <div style={{
+              width: '32px', height: '32px', borderRadius: '8px', flexShrink: 0,
+              background: s.iconBg, border: `1px solid ${s.iconBorder}`,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              {s.icon}
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+              <span style={{ color: 'var(--text-dim)', fontFamily: 'var(--font-mono)', fontSize: '9px', letterSpacing: '0.1em', textTransform: 'uppercase', lineHeight: 1.4 }}>
                 {s.label}
               </span>
-            </div>
-            <div style={{ color: s.color, fontFamily: 'var(--font-mono)', fontSize: '38px', fontWeight: 700, lineHeight: 1 }}>
-              {s.value}
+              <div style={{ color: s.color, fontFamily: 'var(--font-mono)', fontSize: '2rem', fontWeight: 700, lineHeight: 1 }}>
+                {s.value}
+              </div>
+              <span style={{ color: 'var(--text-dim)', fontFamily: 'var(--font-mono)', fontSize: '9px', letterSpacing: '0.08em', lineHeight: 1.4 }}>
+                {s.sublabel}
+              </span>
             </div>
           </div>
         ))}

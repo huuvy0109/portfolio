@@ -451,7 +451,10 @@ function TestResultRow({ result: r, idx, expanded, onToggle }: {
               {retry} {expanded ? '▲' : '▼'}
             </button>
           ) : (
-            <span className="font-mono text-[10px]" style={{ color: 'var(--text-muted)' }}>{retry}</span>
+            <span className="font-mono text-[10px]"
+              style={{ color: isFlaky ? 'var(--accent-yellow)' : 'var(--text-muted)' }}>
+              {retry}
+            </span>
           )}
         </div>
       </div>
@@ -490,12 +493,16 @@ function TestResultRow({ result: r, idx, expanded, onToggle }: {
             <span className="font-mono text-[10px]" style={{ color: 'var(--text-muted)' }}>
               {r.durationMs ? `${(parseInt(r.durationMs)/1000).toFixed(1)}s` : '—'}
             </span>
-            {r.errorMessage && (
+            {r.errorMessage ? (
               <button onClick={onToggle} className="font-mono text-[10px]"
                 style={{ color: retry > 0 ? 'var(--accent-yellow)' : 'var(--text-muted)' }}>
                 {retry > 0 ? `${retry}x` : ''}{expanded ? ' ▲' : ' ▼'}
               </button>
-            )}
+            ) : retry > 0 ? (
+              <span className="font-mono text-[10px]" style={{ color: 'var(--accent-yellow)' }}>
+                {retry}x
+              </span>
+            ) : null}
           </div>
         </div>
         {r.file && (
